@@ -4,35 +4,39 @@ import { parseVisualMarkdown, type ParsedVisualMarkdown } from './parser.js';
 import { renderHtml } from './renderers/html.js';
 import { renderSvg } from './renderers/svg.js';
 import type { VisualDocument } from './schema.js';
+import { projectVisualView } from './views.js';
 
 export * from './schema.js';
 export * from './parser.js';
 export * from './model.js';
 export * from './layout.js';
 export * from './methods.js';
+export * from './views.js';
 export * from './renderers/svg.js';
 export * from './renderers/html.js';
 
 export interface PreparedVisual {
   parsed: ParsedVisualMarkdown;
+  visual: VisualDocument;
   graph: SemanticGraph;
   summary: GraphSummary;
   layout: LayoutResult;
 }
 
-export async function prepareVisual(markdown: string): Promise<PreparedVisual> {
+export async function prepareVisual(markdown: string, viewId?: string): Promise<PreparedVisual> {
   const parsed = parseVisualMarkdown(markdown);
-  const graph = buildSemanticGraph(parsed.visual);
+  const visual = projectVisualView(parsed.visual, viewId);
+  const graph = buildSemanticGraph(visual);
   const summary = summarizeGraph(graph);
-  const layout = await layoutGraph(graph, parsed.visual);
-  return { parsed, graph, summary, layout };
+  const layout = await layoutGraph(graph, visual);
+  return { parsed, visual, graph, summary, layout };
 }
 
-export async function renderMarkdown(markdown: string, format: 'svg' | 'html' = 'svg'): Promise<string> {
-  const prepared = await prepareVisual(markdown);
+export async function renderMarkdown(markdown: string, format: 'svg' | 'html' = 'svg', viewId?: string): Promise<string> {
+  const prepared = await prepareVisual(markdown, viewId);
   return format === 'html'
-    ? renderHtml(prepared.parsed.visual, prepared.layout, prepared.parsed.body)
-    : renderSvg(prepared.parsed.visual, prepared.layout);
+    ? renderHtml(prepared.visual, prepared.layout, prepared.parsed.body)
+    : renderSvg(prepared.visual, prepared.layout);
 }
 
 export async function renderVisual(visual: VisualDocument, format: 'svg' | 'html' = 'svg'): Promise<string> {

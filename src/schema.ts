@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const IdSchema = z.string().trim().min(1).regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/, 'Use letters, numbers, dot, dash or underscore.');
+
 export const VisualKindSchema = z.enum([
   'process',
   'plan',
@@ -40,9 +42,10 @@ export const EdgeTypeSchema = z.enum([
 ]);
 
 export const StatusSchema = z.enum(['neutral', 'success', 'warning', 'danger', 'muted']);
+export const ViewFocusSchema = z.enum(['all', 'executive', 'flow', 'data', 'controls', 'exceptions']);
 
 export const VisualNodeSchema = z.object({
-  id: z.string().trim().min(1).regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/, 'Use letters, numbers, dot, dash or underscore.'),
+  id: IdSchema,
   label: z.string().trim().min(1),
   type: NodeTypeSchema.default('step'),
   subtitle: z.string().trim().min(1).optional(),
@@ -54,12 +57,31 @@ export const VisualNodeSchema = z.object({
 });
 
 export const VisualEdgeSchema = z.object({
-  from: z.string().trim().min(1),
-  to: z.string().trim().min(1),
+  from: IdSchema,
+  to: IdSchema,
   label: z.string().trim().min(1).optional(),
   type: EdgeTypeSchema.default('flow'),
   status: StatusSchema.default('neutral'),
   note: z.string().trim().min(1).optional(),
+});
+
+export const VisualViewSchema = z.object({
+  id: IdSchema,
+  title: z.string().trim().min(1).optional(),
+  description: z.string().trim().min(1).optional(),
+  focus: ViewFocusSchema.default('all'),
+  kind: VisualKindSchema.optional(),
+  direction: DirectionSchema.optional(),
+  theme: ThemeSchema.optional(),
+  density: DensitySchema.optional(),
+  includeNodeTypes: z.array(NodeTypeSchema).min(1).optional(),
+  excludeNodeTypes: z.array(NodeTypeSchema).min(1).optional(),
+  includeGroups: z.array(z.string().trim().min(1)).min(1).optional(),
+  excludeGroups: z.array(z.string().trim().min(1)).min(1).optional(),
+  includeTags: z.array(z.string().trim().min(1)).min(1).optional(),
+  statuses: z.array(StatusSchema).min(1).optional(),
+  includeEdgeTypes: z.array(EdgeTypeSchema).min(1).optional(),
+  excludeEdgeTypes: z.array(EdgeTypeSchema).min(1).optional(),
 });
 
 export const VisualDocumentSchema = z.object({
@@ -72,6 +94,7 @@ export const VisualDocumentSchema = z.object({
   density: DensitySchema.default('balanced'),
   nodes: z.array(VisualNodeSchema).min(1),
   edges: z.array(VisualEdgeSchema).default([]),
+  views: z.array(VisualViewSchema).default([]),
 });
 
 export const MarkdownEnvelopeSchema = z.object({ visual: VisualDocumentSchema });
@@ -79,7 +102,9 @@ export const MarkdownEnvelopeSchema = z.object({ visual: VisualDocumentSchema })
 export type VisualKind = z.infer<typeof VisualKindSchema>;
 export type VisualNode = z.infer<typeof VisualNodeSchema>;
 export type VisualEdge = z.infer<typeof VisualEdgeSchema>;
+export type VisualView = z.infer<typeof VisualViewSchema>;
 export type VisualDocument = z.infer<typeof VisualDocumentSchema>;
 export type NodeType = z.infer<typeof NodeTypeSchema>;
 export type EdgeType = z.infer<typeof EdgeTypeSchema>;
 export type Status = z.infer<typeof StatusSchema>;
+export type ViewFocus = z.infer<typeof ViewFocusSchema>;
