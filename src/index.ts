@@ -11,6 +11,8 @@ export * from './parser.js';
 export * from './model.js';
 export * from './layout.js';
 export * from './lanes.js';
+export * from './stages.js';
+export * from './routing.js';
 export * from './methods.js';
 export * from './views.js';
 export * from './renderers/svg.js';

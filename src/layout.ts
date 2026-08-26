@@ -2,13 +2,15 @@ import ELKModule from 'elkjs/lib/elk.bundled.js';
 import { applyLaneLayout } from './lanes.js';
 import { getVisualMethodPolicy } from './methods.js';
 import type { SemanticGraph } from './model.js';
-import type { VisualDocument, VisualEdge, VisualGroup, VisualNode } from './schema.js';
+import type { VisualDocument, VisualEdge, VisualGroup, VisualNode, VisualStage } from './schema.js';
+import { applyStageLayout } from './stages.js';
 
 export interface Point { x: number; y: number }
 export interface PositionedNode extends VisualNode { x: number; y: number; width: number; height: number }
 export interface PositionedEdge extends VisualEdge { id: string; points: Point[]; labelPosition?: Point }
 export interface PositionedGroup extends VisualGroup { x: number; y: number; width: number; height: number; orientation: 'horizontal' | 'vertical' }
-export interface LayoutResult { width: number; height: number; nodes: PositionedNode[]; edges: PositionedEdge[]; groups: PositionedGroup[] }
+export interface PositionedStage extends VisualStage { x: number; y: number; width: number; height: number; orientation: 'horizontal' | 'vertical' }
+export interface LayoutResult { width: number; height: number; nodes: PositionedNode[]; edges: PositionedEdge[]; groups: PositionedGroup[]; stages: PositionedStage[] }
 
 interface ElkLayoutNode {
   id: string;
@@ -160,6 +162,8 @@ export async function layoutGraph(graph: SemanticGraph, visual: VisualDocument):
     nodes: positionedNodes,
     edges: positionedEdges,
     groups: [],
+    stages: [],
   };
-  return applyLaneLayout(base, visual);
+  const staged = applyStageLayout(base, visual);
+  return applyLaneLayout(staged, visual);
 }

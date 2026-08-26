@@ -35,14 +35,12 @@ function expandOneHop(visual: VisualDocument, ids: Set<string>): Set<string> {
 
 function presetIds(visual: VisualDocument, focus: ViewFocus): Set<string> {
   switch (focus) {
-    case 'all':
-      return new Set(visual.nodes.map((node) => node.id));
+    case 'all': return new Set(visual.nodes.map((node) => node.id));
     case 'executive': {
       const ids = idsMatching(visual, (node) => executiveTypes.has(node.type) || node.status === 'warning' || node.status === 'danger');
       return ids.size > 0 ? ids : idsMatching(visual, (node) => node.type === 'step' || node.type === 'role');
     }
-    case 'flow':
-      return idsMatching(visual, (node) => flowTypes.has(node.type));
+    case 'flow': return idsMatching(visual, (node) => flowTypes.has(node.type));
     case 'data': {
       const ids = idsMatching(visual, (node) => node.type === 'data');
       addEdgeEndpoints(visual, ids, (edge) => edge.type === 'data');
@@ -70,6 +68,8 @@ function passesNodeFilters(node: VisualNode, view: VisualView): boolean {
   if (view.excludeNodeTypes?.includes(node.type)) return false;
   if (view.includeGroups && (!node.group || !view.includeGroups.includes(node.group))) return false;
   if (view.excludeGroups && node.group && view.excludeGroups.includes(node.group)) return false;
+  if (view.includeStages && (!node.stage || !view.includeStages.includes(node.stage))) return false;
+  if (view.excludeStages && node.stage && view.excludeStages.includes(node.stage)) return false;
   if (!containsAny(node.tags, view.includeTags)) return false;
   if (view.statuses && !view.statuses.includes(node.status as Status)) return false;
   return true;
@@ -176,9 +176,11 @@ export function projectVisualView(visual: VisualDocument, viewId?: string): Visu
   if (nodes.length === 0) throw new VisualViewError(`View ${view.id} selected no nodes.`, ['Relax the focus or include filters for this view.']);
 
   const activeGroups = new Set(nodes.flatMap((node) => node.group ? [node.group] : []));
+  const activeStages = new Set(nodes.flatMap((node) => node.stage ? [node.stage] : []));
   const projected: VisualDocument = {
     ...visual,
     groups: visual.groups.filter((group) => activeGroups.has(group.id)),
+    stages: visual.stages.filter((stage) => activeStages.has(stage.id)),
     nodes,
     edges,
     views: [],
