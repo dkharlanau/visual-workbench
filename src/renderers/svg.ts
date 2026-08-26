@@ -36,13 +36,13 @@ function pathData(points: Point[]): string {
 function renderGroup(group: PositionedGroup, theme: Theme): string {
   const x = group.x + MARGIN;
   const y = group.y + HEADER_HEIGHT;
-  const label = escapeXml(group.label);
+  const label = escapeXml(group.label.toUpperCase());
   const description = group.description ? `<title>${escapeXml(group.description)}</title>` : '';
   return `<g data-group-id="${escapeXml(group.id)}">
   ${description}
   <rect x="${x}" y="${y}" width="${group.width}" height="${group.height}" rx="12" fill="${theme.card}" fill-opacity="0.48" stroke="${theme.border}"/>
   <line x1="${x}" y1="${y + 30}" x2="${x + group.width}" y2="${y + 30}" stroke="${theme.border}"/>
-  <text x="${x + 14}" y="${y + 20}" font-size="10" font-weight="750" letter-spacing="1.1" fill="${theme.muted}">${label.toUpperCase()}</text>
+  <text x="${x + 14}" y="${y + 20}" font-size="10" font-weight="750" letter-spacing="1.1" fill="${theme.muted}">${label}</text>
 </g>`;
 }
 

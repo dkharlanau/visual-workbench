@@ -19,9 +19,22 @@
         "direction": { "enum": ["right", "down", "left", "up"], "default": "right" },
         "theme": { "enum": ["paper", "slate"], "default": "paper" },
         "density": { "enum": ["airy", "balanced", "compact"], "default": "balanced" },
+        "groups": { "type": "array", "items": { "$ref": "#/$defs/group" }, "default": [] },
         "nodes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/node" } },
         "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" }, "default": [] },
         "views": { "type": "array", "items": { "$ref": "#/$defs/view" }, "default": [] }
+      }
+    },
+    "group": {
+      "type": "object",
+      "required": ["id", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" },
+        "label": { "type": "string", "minLength": 1 },
+        "kind": { "const": "lane", "default": "lane" },
+        "description": { "type": "string", "minLength": 1 },
+        "order": { "type": "integer" }
       }
     },
     "node": {
@@ -35,7 +48,7 @@
         "subtitle": { "type": "string", "minLength": 1 },
         "description": { "type": "string", "minLength": 1 },
         "owner": { "type": "string", "minLength": 1 },
-        "group": { "type": "string", "minLength": 1 },
+        "group": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" },
         "status": { "enum": ["neutral", "success", "warning", "danger", "muted"], "default": "neutral" },
         "tags": { "type": "array", "items": { "type": "string", "minLength": 1 }, "default": [] }
       }
@@ -68,8 +81,8 @@
         "density": { "enum": ["airy", "balanced", "compact"] },
         "includeNodeTypes": { "$ref": "#/$defs/nodeTypeArray" },
         "excludeNodeTypes": { "$ref": "#/$defs/nodeTypeArray" },
-        "includeGroups": { "$ref": "#/$defs/stringArray" },
-        "excludeGroups": { "$ref": "#/$defs/stringArray" },
+        "includeGroups": { "$ref": "#/$defs/idArray" },
+        "excludeGroups": { "$ref": "#/$defs/idArray" },
         "includeTags": { "$ref": "#/$defs/stringArray" },
         "statuses": { "type": "array", "minItems": 1, "items": { "enum": ["neutral", "success", "warning", "danger", "muted"] } },
         "includeEdgeTypes": { "$ref": "#/$defs/edgeTypeArray" },
@@ -85,6 +98,11 @@
       "type": "array",
       "minItems": 1,
       "items": { "enum": ["flow", "data", "dependency", "relation", "control", "exception"] }
+    },
+    "idArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" }
     },
     "stringArray": {
       "type": "array",
