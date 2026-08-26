@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Render smoke examples
+        run: |
+          mkdir -p .artifacts
+          node dist/cli.js render examples/customer-creation.md -o .artifacts/customer-creation.svg
+          node dist/cli.js render examples/product-plan.md -o .artifacts/product-plan.svg
+          node dist/cli.js render examples/data-flow.md -o .artifacts/data-flow.html
