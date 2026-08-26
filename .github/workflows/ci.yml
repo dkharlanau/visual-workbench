@@ -32,5 +32,6 @@ jobs:
           node dist/cli.js render examples/product-plan.md -o .artifacts/product-plan.svg
           node dist/cli.js render examples/data-flow.md -o .artifacts/data-flow.html
           node dist/cli.js render examples/supply-chain.md --view executive -o .artifacts/supply-chain.executive.svg
-          node dist/cli.js render examples/supply-chain.md --view information -o .artifacts/supply-chain.information.svg
           node dist/cli.js render-views examples/supply-chain.md --output-dir .artifacts/views
+          node dist/cli.js render examples/order-fulfillment-lanes.md -o .artifacts/order-fulfillment-lanes.svg
+          node dist/cli.js render examples/order-fulfillment-lanes.md --view executive -o .artifacts/order-fulfillment.executive.svg

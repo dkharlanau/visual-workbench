@@ -5,24 +5,32 @@ A Visual Workbench source is ordinary Markdown with a `visual` object in YAML fr
 ```yaml
 ---
 visual:
-  version: 1
   title: Customer creation
   kind: checkpoint-flow
+  groups:
+    - id: business
+      label: Business
+      order: 1
+    - id: platform
+      label: Platform
+      order: 2
   nodes:
     - id: source
       label: Customer created
-      type: system
+      type: outcome
+      group: business
     - id: gate
       label: Validate and govern
       type: checkpoint
+      group: platform
     - id: target
       label: Customer available
       type: outcome
+      group: business
       status: success
   edges:
     - from: source
       to: gate
-      label: Customer
       type: data
     - from: gate
       to: target
@@ -31,8 +39,6 @@ visual:
     - id: executive
       focus: executive
       kind: process
-    - id: controls
-      focus: controls
 ---
 ```
 
@@ -44,12 +50,21 @@ visual:
 | `title` | string | Human-facing title |
 | `description` | string | One-line context |
 | `kind` | process, checkpoint-flow, data-flow, system-flow, plan, roadmap, timeline, handoff, dependency-map, relationship | Default visual method |
-| `direction` | right, down, left, up | Primary reading direction where the method uses one |
+| `direction` | right, down, left, up | Primary reading direction |
 | `theme` | paper, slate | Presentation theme |
 | `density` | airy, balanced, compact | Spacing policy |
+| `groups` | array | Optional semantic swimlanes |
 | `nodes` | array | Semantic entities |
 | `edges` | array | Semantic relationships |
 | `views` | array | Optional named projections of the same semantic model |
+
+## Group fields
+
+Required: `id`, `label`.
+
+Optional: `kind` (`lane`), `description`, `order`.
+
+When groups are present, every node must reference a valid group. Group IDs are unique. Views may filter groups with `includeGroups` and `excludeGroups`.
 
 ## Node fields
 
@@ -71,8 +86,6 @@ Required: `id`.
 
 A view may use `title`, `description`, `focus`, `kind`, `direction`, `theme`, `density`, `includeNodeTypes`, `excludeNodeTypes`, `includeGroups`, `excludeGroups`, `includeTags`, `statuses`, `includeEdgeTypes` and `excludeEdgeTypes`.
 
-Focus presets are `all`, `executive`, `flow`, `data`, `controls` and `exceptions`. See [`docs/views.md`](views.md) for projection semantics and path contraction.
+Focus presets are `all`, `executive`, `flow`, `data`, `controls` and `exceptions`. See [`docs/views.md`](views.md).
 
-The parser rejects duplicate node IDs, duplicate view IDs, missing relationship targets and self-loops. This keeps the source useful as machine-readable context, not only as diagram input.
-
-Method-selection guidance lives in [`docs/visual-methods.md`](visual-methods.md).
+The parser rejects duplicate node/group/view IDs, missing relationship targets, invalid group references and self-loops.

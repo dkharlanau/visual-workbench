@@ -28,20 +28,33 @@ function splitFrontMatter(markdown: string): { metadata: string; body: string } 
 function validateModel(visual: VisualDocument): void {
   const nodeIds = new Set<string>();
   const viewIds = new Set<string>();
+  const groupIds = new Set<string>();
   const details: string[] = [];
+
+  visual.groups.forEach((group) => {
+    if (groupIds.has(group.id)) details.push(`Duplicate group id: ${group.id}`);
+    groupIds.add(group.id);
+  });
 
   visual.nodes.forEach((node) => {
     if (nodeIds.has(node.id)) details.push(`Duplicate node id: ${node.id}`);
     nodeIds.add(node.id);
+    if (node.group && !groupIds.has(node.group)) details.push(`Node ${node.id} references missing group: ${node.group}`);
+    if (visual.groups.length > 0 && !node.group) details.push(`Node ${node.id} has no group while lane groups are active.`);
   });
+
   visual.edges.forEach((edge, index) => {
     if (!nodeIds.has(edge.from)) details.push(`edges[${index}].from references missing node: ${edge.from}`);
     if (!nodeIds.has(edge.to)) details.push(`edges[${index}].to references missing node: ${edge.to}`);
     if (edge.from === edge.to) details.push(`edges[${index}] creates a self-loop on ${edge.from}; self-loops are not supported yet.`);
   });
+
   visual.views.forEach((view) => {
     if (viewIds.has(view.id)) details.push(`Duplicate view id: ${view.id}`);
     viewIds.add(view.id);
+    for (const groupId of [...(view.includeGroups ?? []), ...(view.excludeGroups ?? [])]) {
+      if (!groupIds.has(groupId)) details.push(`View ${view.id} references missing group: ${groupId}`);
+    }
   });
 
   if (details.length > 0) {
