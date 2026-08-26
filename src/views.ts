@@ -1,4 +1,4 @@
-import type { NodeType, Status, VisualDocument, VisualEdge, VisualNode, VisualView, ViewFocus } from './schema.js';
+import type { EdgeType, NodeType, Status, VisualDocument, VisualEdge, VisualNode, VisualView, ViewFocus } from './schema.js';
 
 export class VisualViewError extends Error {
   constructor(message: string, public readonly details: string[] = []) {
@@ -9,6 +9,7 @@ export class VisualViewError extends Error {
 
 const executiveTypes = new Set<NodeType>(['system', 'decision', 'checkpoint', 'milestone', 'outcome', 'risk']);
 const flowTypes = new Set<NodeType>(['step', 'system', 'role', 'decision', 'checkpoint', 'milestone', 'outcome', 'risk']);
+const edgeTypePriority: EdgeType[] = ['exception', 'control', 'dependency', 'data', 'flow', 'relation'];
 
 function idsMatching(visual: VisualDocument, predicate: (node: VisualNode) => boolean): Set<string> {
   return new Set(visual.nodes.filter(predicate).map((node) => node.id));
@@ -78,6 +79,79 @@ function passesEdgeFilters(edge: VisualEdge, view: VisualView): boolean {
   return true;
 }
 
+function collapsedEdgeType(path: VisualEdge[]): EdgeType {
+  return edgeTypePriority.find((type) => path.some((edge) => edge.type === type)) ?? 'flow';
+}
+
+function collapsedStatus(path: VisualEdge[]): Status {
+  if (path.some((edge) => edge.status === 'danger')) return 'danger';
+  if (path.some((edge) => edge.status === 'warning')) return 'warning';
+  return 'neutral';
+}
+
+function collapsedLabel(hiddenNodes: VisualNode[]): string | undefined {
+  if (hiddenNodes.length === 0) return undefined;
+  const first = hiddenNodes[0]?.label ?? '';
+  const short = first.length > 28 ? `${first.slice(0, 27)}…` : first;
+  return hiddenNodes.length === 1 ? `via ${short}` : `via ${short} +${hiddenNodes.length - 1}`;
+}
+
+function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: VisualView): VisualEdge[] {
+  const allowedEdges = visual.edges.filter((edge) => passesEdgeFilters(edge, view));
+  const direct = allowedEdges.filter((edge) => selectedIds.has(edge.from) && selectedIds.has(edge.to));
+  const results = new Map<string, VisualEdge>();
+  direct.forEach((edge) => results.set(`${edge.from}|${edge.to}|${edge.type}`, edge));
+
+  const outgoing = new Map<string, VisualEdge[]>();
+  allowedEdges.forEach((edge) => {
+    const list = outgoing.get(edge.from) ?? [];
+    list.push(edge);
+    outgoing.set(edge.from, list);
+  });
+  const nodeById = new Map(visual.nodes.map((node) => [node.id, node]));
+  const maxHiddenDepth = 6;
+
+  for (const source of selectedIds) {
+    const queue: Array<{ nodeId: string; path: VisualEdge[]; hiddenIds: string[] }> = [{ nodeId: source, path: [], hiddenIds: [] }];
+    const bestDepth = new Map<string, number>([[source, 0]]);
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (!current) break;
+      for (const edge of outgoing.get(current.nodeId) ?? []) {
+        const path = [...current.path, edge];
+        if (selectedIds.has(edge.to)) {
+          if (edge.to === source || current.hiddenIds.length === 0) continue;
+          const hiddenNodes = current.hiddenIds.map((id) => nodeById.get(id)).filter((node): node is VisualNode => Boolean(node));
+          const type = collapsedEdgeType(path);
+          const status = collapsedStatus(path);
+          const label = collapsedLabel(hiddenNodes);
+          const collapsed: VisualEdge = {
+            from: source,
+            to: edge.to,
+            type,
+            status,
+            note: `Collapsed view path through: ${hiddenNodes.map((node) => node.label).join(' → ')}`,
+            ...(label ? { label } : {}),
+          };
+          const key = `${collapsed.from}|${collapsed.to}|${collapsed.type}`;
+          if (!results.has(key)) results.set(key, collapsed);
+          continue;
+        }
+
+        const nextDepth = current.hiddenIds.length + 1;
+        if (nextDepth > maxHiddenDepth) continue;
+        const previousDepth = bestDepth.get(edge.to);
+        if (previousDepth != null && previousDepth <= nextDepth) continue;
+        bestDepth.set(edge.to, nextDepth);
+        queue.push({ nodeId: edge.to, path, hiddenIds: [...current.hiddenIds, edge.to] });
+      }
+    }
+  }
+
+  return [...results.values()];
+}
+
 export interface VisualViewSummary {
   id: string;
   title: string;
@@ -104,7 +178,7 @@ export function projectVisualView(visual: VisualDocument, viewId?: string): Visu
   const candidateIds = presetIds(visual, view.focus);
   const nodes = visual.nodes.filter((node) => candidateIds.has(node.id) && passesNodeFilters(node, view));
   const nodeIds = new Set(nodes.map((node) => node.id));
-  const edges = visual.edges.filter((edge) => nodeIds.has(edge.from) && nodeIds.has(edge.to) && passesEdgeFilters(edge, view));
+  const edges = projectEdges(visual, nodeIds, view);
 
   if (nodes.length === 0) {
     throw new VisualViewError(`View ${view.id} selected no nodes.`, ['Relax the focus or include filters for this view.']);
