@@ -1,0 +1,42 @@
+{
+  "name": "@dkharlanau/visual-workbench",
+  "version": "0.1.0",
+  "description": "Metadata-driven visual modeling engine for processes, plans, data flows and relationships.",
+  "type": "module",
+  "bin": {
+    "visual-workbench": "./dist/cli.js",
+    "vwb": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "tsx src/cli.ts",
+    "render:customer": "tsx src/cli.ts render examples/customer-creation.md -o .artifacts/customer-creation.svg",
+    "render:plan": "tsx src/cli.ts render examples/product-plan.md -o .artifacts/product-plan.svg",
+    "render:data": "tsx src/cli.ts render examples/data-flow.md -o .artifacts/data-flow.svg"
+  },
+  "engines": {"node": ">=20"},
+  "keywords": ["visualization", "diagram-as-code", "markdown", "graph", "process", "planning", "data-flow", "elk"],
+  "dependencies": {
+    "commander": "^14.0.0",
+    "elkjs": "^0.11.1",
+    "graphology": "^0.26.0",
+    "yaml": "^2.8.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.0"
+  }
+}
