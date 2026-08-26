@@ -37,8 +37,10 @@ function presetIds(visual: VisualDocument, focus: ViewFocus): Set<string> {
   switch (focus) {
     case 'all':
       return new Set(visual.nodes.map((node) => node.id));
-    case 'executive':
-      return idsMatching(visual, (node) => executiveTypes.has(node.type) || node.status === 'warning' || node.status === 'danger');
+    case 'executive': {
+      const ids = idsMatching(visual, (node) => executiveTypes.has(node.type) || node.status === 'warning' || node.status === 'danger');
+      return ids.size > 0 ? ids : idsMatching(visual, (node) => node.type === 'step' || node.type === 'role');
+    }
     case 'flow':
       return idsMatching(visual, (node) => flowTypes.has(node.type));
     case 'data': {
