@@ -1,4 +1,4 @@
-import type { LayoutResult, Point, PositionedEdge, PositionedGroup, PositionedNode } from '../layout.js';
+import type { LayoutResult, Point, PositionedEdge, PositionedGroup, PositionedNode, PositionedStage } from '../layout.js';
 import type { VisualDocument } from '../schema.js';
 import { getTheme, type Theme } from '../themes.js';
 
@@ -7,6 +7,10 @@ const MARGIN = 28;
 
 function escapeXml(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
+}
+
+function truncate(value: string, max: number): string {
+  return value.length <= max ? value : `${value.slice(0, Math.max(1, max - 1))}…`;
 }
 
 function wrapText(value: string, maxChars: number): string[] {
@@ -31,6 +35,49 @@ function pathData(points: Point[]): string {
   const [first, ...rest] = points.map(shifted);
   if (!first) return '';
   return [`M ${first.x} ${first.y}`, ...rest.map((point) => `L ${point.x} ${point.y}`)].join(' ');
+}
+
+function renderStageRail(stages: PositionedStage[], theme: Theme): string {
+  if (stages.length < 2) return '';
+  const first = stages[0];
+  const last = stages[stages.length - 1];
+  if (!first || !last) return '';
+  if (first.orientation === 'vertical') {
+    const x1 = first.x + first.width / 2 + MARGIN;
+    const x2 = last.x + last.width / 2 + MARGIN;
+    const y = first.y + HEADER_HEIGHT + 20;
+    return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${theme.border}" stroke-width="2"/>`;
+  }
+  const x = first.x + MARGIN + 20;
+  const y1 = first.y + HEADER_HEIGHT + 20;
+  const y2 = last.y + HEADER_HEIGHT + 20;
+  return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${theme.border}" stroke-width="2"/>`;
+}
+
+function renderStage(stage: PositionedStage, index: number, theme: Theme): string {
+  const x = stage.x + MARGIN;
+  const y = stage.y + HEADER_HEIGHT;
+  const opacity = index % 2 === 0 ? 0.24 : 0.42;
+  const label = escapeXml(truncate(stage.label, 30));
+  const timeframe = stage.timeframe ? escapeXml(truncate(stage.timeframe, 24)) : '';
+  const fill = `<rect x="${x}" y="${y}" width="${stage.width}" height="${stage.height}" rx="12" fill="${theme.card}" fill-opacity="${opacity}" stroke="${theme.border}"/>`;
+  if (stage.orientation === 'vertical') {
+    const centerX = x + stage.width / 2;
+    return `<g data-stage-id="${escapeXml(stage.id)}">
+  ${stage.description ? `<title>${escapeXml(stage.description)}</title>` : ''}
+  ${fill}
+  <circle cx="${centerX}" cy="${y + 20}" r="6" fill="${theme.nodeAccents.milestone}" stroke="${theme.card}" stroke-width="3"/>
+  <text x="${centerX}" y="${y + 45}" text-anchor="middle" font-size="11.5" font-weight="750" fill="${theme.text}">${label}</text>
+  ${timeframe ? `<text x="${centerX}" y="${y + 60}" text-anchor="middle" font-size="10" font-weight="600" fill="${theme.muted}">${timeframe}</text>` : ''}
+</g>`;
+  }
+  return `<g data-stage-id="${escapeXml(stage.id)}">
+  ${stage.description ? `<title>${escapeXml(stage.description)}</title>` : ''}
+  ${fill}
+  <circle cx="${x + 20}" cy="${y + 20}" r="6" fill="${theme.nodeAccents.milestone}" stroke="${theme.card}" stroke-width="3"/>
+  <text x="${x + 38}" y="${y + 18}" font-size="11.5" font-weight="750" fill="${theme.text}">${label}</text>
+  ${timeframe ? `<text x="${x + 38}" y="${y + 34}" font-size="10" font-weight="600" fill="${theme.muted}">${timeframe}</text>` : ''}
+</g>`;
 }
 
 function renderGroup(group: PositionedGroup, theme: Theme): string {
@@ -79,7 +126,7 @@ function renderNode(node: PositionedNode, theme: Theme): string {
   const subtitleLines = node.subtitle ? wrapText(node.subtitle, Math.max(20, Math.floor(node.width / 7.1))).slice(0, 1) : [];
   const ownerLines = node.owner ? wrapText(node.owner, Math.max(20, Math.floor(node.width / 7.1))).slice(0, 1) : [];
   const bodyTop = y + 45;
-  const labelText = labelLines.map((line, index) => `<tspan x="${x + 18}" dy="${index === 0 ? 0 : 18}">${escapeXml(line)}</tspan>`).join('');
+  const labelText = labelLines.map((line, lineIndex) => `<tspan x="${x + 18}" dy="${lineIndex === 0 ? 0 : 18}">${escapeXml(line)}</tspan>`).join('');
   const labelBottom = bodyTop + Math.max(0, labelLines.length - 1) * 18;
   const subtitle = subtitleLines.length ? `<text x="${x + 18}" y="${labelBottom + 21}" font-size="11.5" fill="${theme.muted}">${escapeXml(subtitleLines[0] ?? '')}</text>` : '';
   const owner = ownerLines.length ? `<text x="${x + 18}" y="${y + node.height - 14}" font-size="10.5" font-weight="600" fill="${theme.muted}">${escapeXml(ownerLines[0] ?? '')}</text>` : '';
@@ -120,6 +167,8 @@ export function renderSvg(visual: VisualDocument, layout: LayoutResult): string 
   <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
     <rect x="${width - MARGIN - kindWidth}" y="22" width="${kindWidth}" height="26" rx="13" fill="${theme.card}" stroke="${theme.border}"/>
     <text x="${width - MARGIN - kindWidth / 2}" y="39" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1" fill="${theme.muted}">${escapeXml(kind)}</text>
+    ${layout.stages.map((stage, index) => renderStage(stage, index, theme)).join('\n')}
+    ${renderStageRail(layout.stages, theme)}
     ${layout.groups.map((group) => renderGroup(group, theme)).join('\n')}
     ${layout.edges.map((edge) => renderEdge(edge, theme)).join('\n')}
     ${layout.nodes.map((node) => renderNode(node, theme)).join('\n')}

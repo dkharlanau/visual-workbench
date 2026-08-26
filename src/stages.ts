@@ -4,10 +4,10 @@ import type { VisualDocument, VisualStage } from './schema.js';
 
 const STAGE_GAP = 12;
 const STAGE_PADDING = 24;
-const STAGE_HEADER = 46;
+const STAGE_HEADER = 68;
 const NODE_GAP = 28;
 const MIN_STAGE_WIDTH = 220;
-const MIN_STAGE_HEIGHT = 150;
+const MIN_STAGE_HEIGHT = 172;
 
 function orderedStages(visual: VisualDocument): VisualStage[] {
   const ordered = visual.stages
@@ -54,7 +54,7 @@ function layoutHorizontalStages(base: LayoutResult, visual: VisualDocument): Lay
   const height = Math.max(180, base.height, maxBottom);
   stages.forEach((stage) => { stage.height = height; });
   const edges = rerouteOrthogonalEdges(base.edges, nodes, visual.direction);
-  return { width, height, nodes, edges, groups: [], stages };
+  return { ...base, width, height, nodes, edges, groups: [], stages };
 }
 
 function layoutVerticalStages(base: LayoutResult, visual: VisualDocument): LayoutResult {
@@ -82,7 +82,7 @@ function layoutVerticalStages(base: LayoutResult, visual: VisualDocument): Layou
   stages.forEach((stage) => { stage.width = width; });
   const height = Math.max(180, cursorY - STAGE_GAP);
   const edges = rerouteOrthogonalEdges(base.edges, nodes, visual.direction);
-  return { width, height, nodes, edges, groups: [], stages };
+  return { ...base, width, height, nodes, edges, groups: [], stages };
 }
 
 export function applyStageLayout(base: LayoutResult, visual: VisualDocument): LayoutResult {

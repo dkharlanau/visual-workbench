@@ -26,6 +26,7 @@ function fixture(direction: 'right' | 'down' = 'right') {
     width: 620,
     height: 900,
     groups: [],
+    stages: [],
     nodes: visual.nodes.map((node, index) => ({ ...node, x: 40 + index * 180, y: 40 + index * 30, width: 160, height: 80 })),
     edges: visual.edges.map((edge, index) => ({ ...edge, id: `e${index + 1}`, points: [] })),
   };
