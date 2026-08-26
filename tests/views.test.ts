@@ -34,6 +34,11 @@ visual:
       type: data
     - from: gate
       to: target
+      label: Create
+      type: flow
+    - from: gate
+      to: target
+      label: Confirm
       type: flow
     - from: gate
       to: failure
@@ -60,6 +65,11 @@ describe('named views', () => {
     expect(projected.nodes.some((node) => node.id === 'payload')).toBe(false);
     expect(projected.nodes.some((node) => node.id === 'source')).toBe(true);
     expect(projected.edges.some((edge) => edge.from === 'source' && edge.to === 'gate' && edge.label?.startsWith('via '))).toBe(true);
+  });
+
+  it('preserves parallel source relationships', () => {
+    const projected = projectVisualView(visual, 'executive');
+    expect(projected.edges.filter((edge) => edge.from === 'gate' && edge.to === 'target' && edge.type === 'flow')).toHaveLength(2);
   });
 
   it('allows a view to change the visual method', () => {

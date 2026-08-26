@@ -101,8 +101,8 @@ function collapsedLabel(hiddenNodes: VisualNode[]): string | undefined {
 function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: VisualView): VisualEdge[] {
   const allowedEdges = visual.edges.filter((edge) => passesEdgeFilters(edge, view));
   const direct = allowedEdges.filter((edge) => selectedIds.has(edge.from) && selectedIds.has(edge.to));
-  const results = new Map<string, VisualEdge>();
-  direct.forEach((edge) => results.set(`${edge.from}|${edge.to}|${edge.type}`, edge));
+  const results: VisualEdge[] = [...direct];
+  const occupiedBridgeKeys = new Set(direct.map((edge) => `${edge.from}|${edge.to}|${edge.type}`));
 
   const outgoing = new Map<string, VisualEdge[]>();
   allowedEdges.forEach((edge) => {
@@ -137,7 +137,10 @@ function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: Vi
             ...(label ? { label } : {}),
           };
           const key = `${collapsed.from}|${collapsed.to}|${collapsed.type}`;
-          if (!results.has(key)) results.set(key, collapsed);
+          if (!occupiedBridgeKeys.has(key)) {
+            results.push(collapsed);
+            occupiedBridgeKeys.add(key);
+          }
           continue;
         }
 
@@ -151,7 +154,7 @@ function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: Vi
     }
   }
 
-  return [...results.values()];
+  return results;
 }
 
 export interface VisualViewSummary {
