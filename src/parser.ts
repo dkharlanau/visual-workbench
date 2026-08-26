@@ -25,20 +25,27 @@ function splitFrontMatter(markdown: string): { metadata: string; body: string } 
   };
 }
 
-function validateRelationships(visual: VisualDocument): void {
-  const seen = new Set<string>();
+function validateModel(visual: VisualDocument): void {
+  const nodeIds = new Set<string>();
+  const viewIds = new Set<string>();
   const details: string[] = [];
+
   visual.nodes.forEach((node) => {
-    if (seen.has(node.id)) details.push(`Duplicate node id: ${node.id}`);
-    seen.add(node.id);
+    if (nodeIds.has(node.id)) details.push(`Duplicate node id: ${node.id}`);
+    nodeIds.add(node.id);
   });
   visual.edges.forEach((edge, index) => {
-    if (!seen.has(edge.from)) details.push(`edges[${index}].from references missing node: ${edge.from}`);
-    if (!seen.has(edge.to)) details.push(`edges[${index}].to references missing node: ${edge.to}`);
+    if (!nodeIds.has(edge.from)) details.push(`edges[${index}].from references missing node: ${edge.from}`);
+    if (!nodeIds.has(edge.to)) details.push(`edges[${index}].to references missing node: ${edge.to}`);
     if (edge.from === edge.to) details.push(`edges[${index}] creates a self-loop on ${edge.from}; self-loops are not supported yet.`);
   });
+  visual.views.forEach((view) => {
+    if (viewIds.has(view.id)) details.push(`Duplicate view id: ${view.id}`);
+    viewIds.add(view.id);
+  });
+
   if (details.length > 0) {
-    throw new VisualWorkbenchError('The visual model contains invalid relationships.', details);
+    throw new VisualWorkbenchError('The visual model contains invalid relationships or identifiers.', details);
   }
 }
 
@@ -55,6 +62,6 @@ export function parseVisualMarkdown(markdown: string): ParsedVisualMarkdown {
     const details = result.error.issues.map((issue) => `${issue.path.join('.') || 'visual'}: ${issue.message}`);
     throw new VisualWorkbenchError('Visual metadata does not match the Visual Workbench schema.', details);
   }
-  validateRelationships(result.data.visual);
+  validateModel(result.data.visual);
   return { visual: result.data.visual, body };
 }

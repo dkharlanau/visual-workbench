@@ -57,6 +57,26 @@ visual:
       label: Validation failed
       type: exception
       status: warning
+  views:
+    - id: executive
+      title: Supply chain overview
+      description: High-level execution path with control and exception visibility.
+      focus: executive
+      kind: process
+      density: airy
+    - id: information
+      title: Supply chain information flow
+      description: Information movement around inbound execution.
+      focus: data
+      kind: data-flow
+    - id: controls
+      title: Inbound controls
+      focus: controls
+      kind: checkpoint-flow
+    - id: exceptions
+      title: Supply chain exceptions
+      focus: exceptions
+      kind: checkpoint-flow
 ---
 
-The visual deliberately shows both the physical progression and the information checkpoint that controls it.
+One semantic model generates several views. The executive view hides the ASN data node but preserves the source-to-checkpoint relationship by contracting the hidden path.

@@ -16,7 +16,7 @@ Meaning                   Visual method             Output
 steps                      process                   SVG
 systems                    system flow        ───▶   HTML
 business data              data flow                  docs
-milestones / outcomes      plan / roadmap             agent views
+milestones / outcomes      plan / roadmap             named views
 checkpoints                checkpoint flow
 handoffs                   handoff
 risks / exceptions         exception emphasis
@@ -34,9 +34,6 @@ visual:
   title: Customer creation
   description: Creation path with an operational checkpoint.
   kind: checkpoint-flow
-  direction: right
-  theme: paper
-  density: airy
   nodes:
     - id: source
       label: Customer created
@@ -44,8 +41,6 @@ visual:
     - id: gate
       label: Govern customer
       type: checkpoint
-      subtitle: expected ≤ 5 min
-      owner: Master Data
     - id: target
       label: Customer available
       type: outcome
@@ -57,17 +52,24 @@ visual:
       type: data
     - from: gate
       to: target
-      label: Business object
       type: flow
+  views:
+    - id: executive
+      title: Customer availability
+      focus: executive
+      kind: process
+    - id: controls
+      focus: controls
+      kind: checkpoint-flow
 ---
 ```
 
 ```bash
 npm install
 npm run build
-node dist/cli.js render examples/customer-creation.md -o customer-creation.svg
-node dist/cli.js validate examples/customer-creation.md
-node dist/cli.js inspect examples/customer-creation.md
+node dist/cli.js render examples/supply-chain.md --view executive -o executive.svg
+node dist/cli.js views examples/supply-chain.md
+node dist/cli.js render-views examples/supply-chain.md --output-dir .artifacts/views
 ```
 
 ## Engine
@@ -78,6 +80,8 @@ Markdown + semantic metadata
        Zod validation
             ↓
  Graphology semantic graph
+            ↓
+    Named view projection
             ↓
       Visual method policy
             ↓
@@ -97,9 +101,17 @@ Markdown + semantic metadata
 
 `process`, `checkpoint-flow`, `data-flow`, `system-flow`, `plan`, `roadmap`, `timeline`, `handoff`, `dependency-map`, `relationship`.
 
-`kind` is not just a label. Each method maps to a layout policy. For example, directed flows use layered layouts while relationship maps switch to a non-hierarchical stress layout.
+`kind` is not just a label. Each method maps to a layout policy. Directed flows use layered layouts while relationship maps switch to a non-hierarchical stress layout.
 
 See [visual method selection](docs/visual-methods.md).
+
+## One model, multiple views
+
+Named views answer different questions from the same semantic source. Built-in focus presets are `all`, `executive`, `flow`, `data`, `controls` and `exceptions`. A view can also override the visual method and apply semantic filters.
+
+When a view hides an intermediate node, Visual Workbench can contract that hidden directed path so the visible business flow remains connected instead of producing disconnected boxes.
+
+See [named views](docs/views.md).
 
 ## Semantic vocabulary
 
@@ -111,7 +123,7 @@ Status is semantic (`neutral`, `success`, `warning`, `danger`, `muted`). The ren
 
 ## Agent-ready
 
-`AGENTS.md` defines the core rule: **do not draw; model meaning**. Reusable skills in `skills/` teach agents to choose a method and generate compact semantic models for processes, plans and data flows.
+`AGENTS.md` defines the core rule: **do not draw; model meaning**. Reusable skills in `skills/` teach agents to choose a method, build a compact semantic source and define views when one source must serve several audiences.
 
 The JSON Schema at `schemas/visual-workbench.schema.json` is intended for IDE validation and agent tooling.
 
@@ -122,17 +134,18 @@ src/
   schema.ts           metadata language
   parser.ts           Markdown/YAML ingestion + diagnostics
   model.ts            Graphology semantic graph
+  views.ts            named-view projection + path contraction
   methods.ts          visual method policies
   layout.ts           ELK adapter + sizing policy
   themes.ts           presentation tokens
   renderers/          SVG + standalone HTML
-  cli.ts              render / validate / inspect
+  cli.ts              render / views / render-views / validate / inspect
 
 examples/              process, plan, data and supply-chain reference models
-docs/                  methodology, language, architecture and roadmap
+docs/                  methodology, language, views, architecture and roadmap
 schemas/               machine-readable metadata contract
 skills/                reusable visual-thinking agent skills
-tests/                 parser, method and rendering tests
+tests/                 parser, method, view and rendering tests
 ```
 
 ## Design rules
@@ -142,11 +155,12 @@ tests/                 parser, method and rendering tests
 3. Treat data, controls and exceptions as first-class objects.
 4. Keep normal flow visually dominant; make exceptions visible without making the whole canvas red.
 5. Choose the visual method from the question the reader needs answered.
-6. Let one model generate multiple views in later versions.
-7. Let agents produce or transform metadata, but keep final rendering deterministic.
+6. Generate multiple views from one semantic model instead of duplicating sources.
+7. Preserve meaningful connectivity when a view hides intermediate detail.
+8. Let agents produce or transform metadata, but keep final rendering deterministic.
 
-See [the methodology](docs/methodology.md), [language reference](docs/language.md), [architecture](docs/architecture.md), [visual methods](docs/visual-methods.md) and [roadmap](docs/roadmap.md).
+See [the methodology](docs/methodology.md), [language reference](docs/language.md), [architecture](docs/architecture.md), [visual methods](docs/visual-methods.md), [named views](docs/views.md) and [roadmap](docs/roadmap.md).
 
 ## Status
 
-`0.1.0` foundation: semantic Markdown → validated graph → method-specific automatic layout → SVG/HTML. Next: groups/swimlanes, named views, visual regression and an interactive viewer.
+Current foundation: semantic Markdown → validated graph → named semantic views → method-specific automatic layout → SVG/HTML. Next: semantic groups/swimlanes, stronger timeline/roadmap grammar, visual regression and an interactive viewer.
