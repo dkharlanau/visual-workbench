@@ -24,7 +24,7 @@ function fixture(direction: 'right' | 'down' = 'right') {
   });
   const base: LayoutResult = {
     width: 620,
-    height: 280,
+    height: 900,
     groups: [],
     nodes: visual.nodes.map((node, index) => ({ ...node, x: 40 + index * 180, y: 40 + index * 30, width: 160, height: 80 })),
     edges: visual.edges.map((edge, index) => ({ ...edge, id: `e${index + 1}`, points: [] })),
@@ -43,6 +43,7 @@ describe('lane layout', () => {
     const three = result.nodes.find((node) => node.id === 'three');
     expect(one?.y).toBe(three?.y);
     expect(result.edges.every((edge) => edge.points.length >= 2)).toBe(true);
+    expect(result.height).toBeLessThan(base.height);
   });
 
   it('turns groups into vertical lanes for top-to-bottom flows', () => {
@@ -50,5 +51,7 @@ describe('lane layout', () => {
     const result = applyLaneLayout(base, visual);
     expect(result.groups[0]?.orientation).toBe('vertical');
     expect((result.groups[0]?.x ?? 0) + (result.groups[0]?.width ?? 0)).toBeLessThan(result.groups[1]?.x ?? 0);
+    expect(result.width).toBeLessThan(base.width);
+    expect(result.height).toBeGreaterThanOrEqual(base.height);
   });
 });

@@ -104,7 +104,7 @@ function layoutHorizontalLanes(base: LayoutResult, visual: VisualDocument): Layo
 
   const width = Math.max(base.width, maxX);
   groups.forEach((group) => { group.width = width; });
-  const height = Math.max(base.height, laneY - LANE_GAP + OUTER_PADDING);
+  const height = Math.max(180, laneY - LANE_GAP + OUTER_PADDING);
   const edges = rerouteEdges(base.edges, nodes, visual.direction);
   return { width, height, nodes, edges, groups };
 }
@@ -134,7 +134,7 @@ function layoutVerticalLanes(base: LayoutResult, visual: VisualDocument): Layout
 
   const height = Math.max(base.height, maxY);
   groups.forEach((group) => { group.height = height; });
-  const width = Math.max(base.width, laneX - LANE_GAP + OUTER_PADDING);
+  const width = Math.max(320, laneX - LANE_GAP + OUTER_PADDING);
   const edges = rerouteEdges(base.edges, nodes, visual.direction);
   return { width, height, nodes, edges, groups };
 }
