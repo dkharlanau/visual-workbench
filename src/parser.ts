@@ -19,28 +19,36 @@ function splitFrontMatter(markdown: string): { metadata: string; body: string } 
   if (!match) {
     throw new VisualWorkbenchError('Visual Workbench documents must start with YAML front matter delimited by ---');
   }
-  return {
-    metadata: match[1] ?? '',
-    body: normalized.slice(match[0].length).trim(),
-  };
+  return { metadata: match[1] ?? '', body: normalized.slice(match[0].length).trim() };
 }
 
 function validateModel(visual: VisualDocument): void {
   const nodeIds = new Set<string>();
   const viewIds = new Set<string>();
   const groupIds = new Set<string>();
+  const stageIds = new Set<string>();
   const details: string[] = [];
 
   visual.groups.forEach((group) => {
     if (groupIds.has(group.id)) details.push(`Duplicate group id: ${group.id}`);
     groupIds.add(group.id);
   });
+  visual.stages.forEach((stage) => {
+    if (stageIds.has(stage.id)) details.push(`Duplicate stage id: ${stage.id}`);
+    stageIds.add(stage.id);
+  });
+
+  if (visual.groups.length > 0 && visual.stages.length > 0) {
+    details.push('Lane groups and roadmap stages cannot be combined in the same visual yet. Use named views or separate models.');
+  }
 
   visual.nodes.forEach((node) => {
     if (nodeIds.has(node.id)) details.push(`Duplicate node id: ${node.id}`);
     nodeIds.add(node.id);
     if (node.group && !groupIds.has(node.group)) details.push(`Node ${node.id} references missing group: ${node.group}`);
+    if (node.stage && !stageIds.has(node.stage)) details.push(`Node ${node.id} references missing stage: ${node.stage}`);
     if (visual.groups.length > 0 && !node.group) details.push(`Node ${node.id} has no group while lane groups are active.`);
+    if (visual.stages.length > 0 && !node.stage) details.push(`Node ${node.id} has no stage while roadmap stages are active.`);
   });
 
   visual.edges.forEach((edge, index) => {
@@ -54,6 +62,9 @@ function validateModel(visual: VisualDocument): void {
     viewIds.add(view.id);
     for (const groupId of [...(view.includeGroups ?? []), ...(view.excludeGroups ?? [])]) {
       if (!groupIds.has(groupId)) details.push(`View ${view.id} references missing group: ${groupId}`);
+    }
+    for (const stageId of [...(view.includeStages ?? []), ...(view.excludeStages ?? [])]) {
+      if (!stageIds.has(stageId)) details.push(`View ${view.id} references missing stage: ${stageId}`);
     }
   });
 

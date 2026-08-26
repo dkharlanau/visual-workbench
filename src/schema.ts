@@ -53,6 +53,14 @@ export const VisualGroupSchema = z.object({
   order: z.number().int().optional(),
 });
 
+export const VisualStageSchema = z.object({
+  id: IdSchema,
+  label: z.string().trim().min(1),
+  timeframe: z.string().trim().min(1).optional(),
+  description: z.string().trim().min(1).optional(),
+  order: z.number().int().optional(),
+});
+
 export const VisualNodeSchema = z.object({
   id: IdSchema,
   label: z.string().trim().min(1),
@@ -61,6 +69,7 @@ export const VisualNodeSchema = z.object({
   description: z.string().trim().min(1).optional(),
   owner: z.string().trim().min(1).optional(),
   group: IdSchema.optional(),
+  stage: IdSchema.optional(),
   status: StatusSchema.default('neutral'),
   tags: z.array(z.string().trim().min(1)).default([]),
 });
@@ -87,6 +96,8 @@ export const VisualViewSchema = z.object({
   excludeNodeTypes: z.array(NodeTypeSchema).min(1).optional(),
   includeGroups: z.array(IdSchema).min(1).optional(),
   excludeGroups: z.array(IdSchema).min(1).optional(),
+  includeStages: z.array(IdSchema).min(1).optional(),
+  excludeStages: z.array(IdSchema).min(1).optional(),
   includeTags: z.array(z.string().trim().min(1)).min(1).optional(),
   statuses: z.array(StatusSchema).min(1).optional(),
   includeEdgeTypes: z.array(EdgeTypeSchema).min(1).optional(),
@@ -102,6 +113,7 @@ export const VisualDocumentSchema = z.object({
   theme: ThemeSchema.default('paper'),
   density: DensitySchema.default('balanced'),
   groups: z.array(VisualGroupSchema).default([]),
+  stages: z.array(VisualStageSchema).default([]),
   nodes: z.array(VisualNodeSchema).min(1),
   edges: z.array(VisualEdgeSchema).default([]),
   views: z.array(VisualViewSchema).default([]),
@@ -111,6 +123,7 @@ export const MarkdownEnvelopeSchema = z.object({ visual: VisualDocumentSchema })
 
 export type VisualKind = z.infer<typeof VisualKindSchema>;
 export type VisualGroup = z.infer<typeof VisualGroupSchema>;
+export type VisualStage = z.infer<typeof VisualStageSchema>;
 export type VisualNode = z.infer<typeof VisualNodeSchema>;
 export type VisualEdge = z.infer<typeof VisualEdgeSchema>;
 export type VisualView = z.infer<typeof VisualViewSchema>;
