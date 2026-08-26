@@ -58,7 +58,10 @@ function validateModel(visual: VisualDocument): void {
   });
 
   if (details.length > 0) {
-    throw new VisualWorkbenchError('The visual model contains invalid relationships or identifiers.', details);
+    throw new VisualWorkbenchError(
+      `The visual model contains invalid relationships or identifiers. ${details.join(' ')}`,
+      details,
+    );
   }
 }
 
