@@ -26,6 +26,12 @@ describe('parseVisualMarkdown', () => {
     expect(parsed.body).toBe('Notes.');
   });
 
+  it('accepts a document that ends immediately after front matter', () => {
+    const parsed = parseVisualMarkdown(valid.replace('\n---\nNotes.', '\n---'));
+    expect(parsed.visual.title).toBe('Tiny process');
+    expect(parsed.body).toBe('');
+  });
+
   it('rejects missing relationship targets', () => {
     const invalid = valid.replace('to: end', 'to: missing');
     expect(() => parseVisualMarkdown(invalid)).toThrow(VisualWorkbenchError);

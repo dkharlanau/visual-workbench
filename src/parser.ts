@@ -15,16 +15,13 @@ export class VisualWorkbenchError extends Error {
 
 function splitFrontMatter(markdown: string): { metadata: string; body: string } {
   const normalized = markdown.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
-  if (!normalized.startsWith('---\n')) {
+  const match = normalized.match(/^---\n([\s\S]*?)\n---(?:\n|$)/);
+  if (!match) {
     throw new VisualWorkbenchError('Visual Workbench documents must start with YAML front matter delimited by ---');
   }
-  const closingIndex = normalized.indexOf('\n---\n', 4);
-  if (closingIndex === -1) {
-    throw new VisualWorkbenchError('Could not find the closing --- for YAML front matter.');
-  }
   return {
-    metadata: normalized.slice(4, closingIndex),
-    body: normalized.slice(closingIndex + 5).trim(),
+    metadata: match[1] ?? '',
+    body: normalized.slice(match[0].length).trim(),
   };
 }
 

@@ -5,14 +5,14 @@ export type EdgeRouting = 'ORTHOGONAL' | 'POLYLINE';
 
 export interface VisualMethodPolicy {
   algorithm: LayoutAlgorithm;
-  direction?: 'RIGHT' | 'DOWN' | 'LEFT' | 'UP';
+  direction: 'RIGHT' | 'DOWN' | 'LEFT' | 'UP' | undefined;
   edgeRouting: EdgeRouting;
   nodeSpacingMultiplier: number;
   layerSpacingMultiplier: number;
   description: string;
 }
 
-const directionMap: Record<VisualDocument['direction'], NonNullable<VisualMethodPolicy['direction']>> = {
+const directionMap: Record<VisualDocument['direction'], Exclude<VisualMethodPolicy['direction'], undefined>> = {
   right: 'RIGHT',
   down: 'DOWN',
   left: 'LEFT',

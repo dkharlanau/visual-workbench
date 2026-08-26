@@ -65,15 +65,19 @@ function layoutOptions(visual: VisualDocument): Record<string, string> {
 
 export async function layoutGraph(graph: SemanticGraph, visual: VisualDocument): Promise<LayoutResult> {
   const children = graph.mapNodes((id, attributes) => {
-    const size = nodeSize(attributes, visual.density);
+    const node = attributes as VisualNode;
+    const size = nodeSize(node, visual.density);
     return { id, width: size.width, height: size.height };
   });
-  const edges = graph.mapEdges((id, attributes, source, target) => ({
-    id,
-    sources: [source],
-    targets: [target],
-    ...(attributes.label ? { labels: [{ id: `${id}:label`, text: attributes.label, ...estimateEdgeLabel(attributes.label) }] } : {}),
-  }));
+  const edges = graph.mapEdges((id, attributes, source, target) => {
+    const relation = attributes as VisualEdge;
+    return {
+      id,
+      sources: [source],
+      targets: [target],
+      ...(relation.label ? { labels: [{ id: `${id}:label`, text: relation.label, ...estimateEdgeLabel(relation.label) }] } : {}),
+    };
+  });
   const laidOut = await elk.layout({ id: 'root', layoutOptions: layoutOptions(visual), children, edges });
   const positionedNodes: PositionedNode[] = (laidOut.children ?? []).map((child) => {
     const attributes = graph.getNodeAttributes(child.id) as VisualNode;
