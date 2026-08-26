@@ -4,50 +4,59 @@
 
 - Semantic Markdown schema
 - Graphology model
-- ELK layered layout and orthogonal routing
+- ELK automatic layout and routing
 - SVG and standalone HTML renderers
 - CLI render / validate / inspect
-- Process, plan and data-flow examples
-- CI smoke rendering
+- Process, plan, data-flow and supply-chain examples
+- JSON Schema and agent guidance
 
-## 0.2 — visual methods
+## 0.2 — visual methods and views
 
-- Swimlanes and semantic groups
+- Method-specific layout policies
+- Process / checkpoint / data / system / planning / roadmap / timeline / handoff / dependency / relationship methods
+- Named views on one semantic model
+- Executive / flow / data / controls / exceptions focus presets
+- Explicit semantic filters by node type, group, tag, status and edge type
+- Semantic path contraction when filtered nodes would break visible connectivity
+- CLI `views` and `render-views`
+
+## 0.3 — composition
+
+- Semantic groups and swimlanes
+- Group-aware ELK compound graphs
 - Decision branches and convergence
-- Timeline / roadmap layout
-- Relationship-map layout for non-linear graphs
+- Timeline / roadmap-specific visual grammar beyond layout policy
 - Automatic legend and density reduction
-- Edge bundling and improved label collision handling
+- Improved edge-label collision handling
 
-## 0.3 — views
+## 0.4 — quality and portability
 
-- One model → multiple named views
-- Focus rules: executive, operating, controls, data, exceptions
-- Include/exclude/query expressions over graph attributes
-- Automatic view recommendations
+- Visual geometry regression tests
+- Accessibility contrast checks
+- Deterministic fixture corpus
+- GitHub Action for changed visuals
+- PNG/PDF/PowerPoint adapters
 
-## 0.4 — interactive workbench
+## 0.5 — interactive workbench
 
 - Cytoscape.js viewer adapter
 - Select / focus / expand graph interactions
 - Side-panel metadata inspector
 - Export current view to SVG/PNG
 
-## 0.5 — AI skills
+## 0.6 — agent layer
 
+- Method-selection skill that transforms raw notes into valid Visual Workbench metadata
 - `visualize-process`
 - `visualize-plan`
 - `visualize-data-flow`
 - `visualize-dependencies`
 - `visualize-checkpoints`
-- Method-selection skill that transforms raw notes into valid Visual Workbench metadata
+- View recommendation and automatic view generation
 
-## Product-quality backlog
+## Longer-term
 
-- JSON Schema export for IDEs and agents
-- Markdown lint integration
-- GitHub Action for changed visuals
-- Snapshot regression tests for geometry
-- Theme tokens and accessibility contrast tests
 - Plugin API for custom semantic node types and visual methods
 - Adapter contracts for process-as-code, mapping-as-code, interface-as-code and reconciliation-as-code sources
+- Embeddable documentation components
+- Semantic graph query API for agent and governance use cases

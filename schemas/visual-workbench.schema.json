@@ -20,7 +20,8 @@
         "theme": { "enum": ["paper", "slate"], "default": "paper" },
         "density": { "enum": ["airy", "balanced", "compact"], "default": "balanced" },
         "nodes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/node" } },
-        "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" }, "default": [] }
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" }, "default": [] },
+        "views": { "type": "array", "items": { "$ref": "#/$defs/view" }, "default": [] }
       }
     },
     "node": {
@@ -44,13 +45,51 @@
       "required": ["from", "to"],
       "additionalProperties": false,
       "properties": {
-        "from": { "type": "string", "minLength": 1 },
-        "to": { "type": "string", "minLength": 1 },
+        "from": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" },
+        "to": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" },
         "label": { "type": "string", "minLength": 1 },
         "type": { "enum": ["flow", "data", "dependency", "relation", "control", "exception"], "default": "flow" },
         "status": { "enum": ["neutral", "success", "warning", "danger", "muted"], "default": "neutral" },
         "note": { "type": "string", "minLength": 1 }
       }
+    },
+    "view": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "focus": { "enum": ["all", "executive", "flow", "data", "controls", "exceptions"], "default": "all" },
+        "kind": { "enum": ["process", "plan", "data-flow", "relationship", "system-flow", "checkpoint-flow", "roadmap", "timeline", "handoff", "dependency-map"] },
+        "direction": { "enum": ["right", "down", "left", "up"] },
+        "theme": { "enum": ["paper", "slate"] },
+        "density": { "enum": ["airy", "balanced", "compact"] },
+        "includeNodeTypes": { "$ref": "#/$defs/nodeTypeArray" },
+        "excludeNodeTypes": { "$ref": "#/$defs/nodeTypeArray" },
+        "includeGroups": { "$ref": "#/$defs/stringArray" },
+        "excludeGroups": { "$ref": "#/$defs/stringArray" },
+        "includeTags": { "$ref": "#/$defs/stringArray" },
+        "statuses": { "type": "array", "minItems": 1, "items": { "enum": ["neutral", "success", "warning", "danger", "muted"] } },
+        "includeEdgeTypes": { "$ref": "#/$defs/edgeTypeArray" },
+        "excludeEdgeTypes": { "$ref": "#/$defs/edgeTypeArray" }
+      }
+    },
+    "nodeTypeArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["step", "system", "data", "role", "decision", "checkpoint", "milestone", "outcome", "risk", "note"] }
+    },
+    "edgeTypeArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["flow", "data", "dependency", "relation", "control", "exception"] }
+    },
+    "stringArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
     }
   }
 }
