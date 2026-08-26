@@ -9,6 +9,7 @@ export * from './schema.js';
 export * from './parser.js';
 export * from './model.js';
 export * from './layout.js';
+export * from './methods.js';
 export * from './renderers/svg.js';
 export * from './renderers/html.js';
 

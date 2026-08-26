@@ -7,6 +7,10 @@ export const VisualKindSchema = z.enum([
   'relationship',
   'system-flow',
   'checkpoint-flow',
+  'roadmap',
+  'timeline',
+  'handoff',
+  'dependency-map',
 ]);
 
 export const DirectionSchema = z.enum(['right', 'down', 'left', 'up']);
@@ -70,9 +74,7 @@ export const VisualDocumentSchema = z.object({
   edges: z.array(VisualEdgeSchema).default([]),
 });
 
-export const MarkdownEnvelopeSchema = z.object({
-  visual: VisualDocumentSchema,
-});
+export const MarkdownEnvelopeSchema = z.object({ visual: VisualDocumentSchema });
 
 export type VisualKind = z.infer<typeof VisualKindSchema>;
 export type VisualNode = z.infer<typeof VisualNodeSchema>;
