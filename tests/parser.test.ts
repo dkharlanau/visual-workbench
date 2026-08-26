@@ -37,8 +37,16 @@ describe('parseVisualMarkdown', () => {
     expect(() => parseVisualMarkdown(invalid)).toThrow(VisualWorkbenchError);
   });
 
-  it('rejects duplicate ids', () => {
+  it('rejects duplicate node ids', () => {
     const invalid = valid.replace('id: end', 'id: start');
-    expect(() => parseVisualMarkdown(invalid)).toThrow(/invalid relationships/i);
+    expect(() => parseVisualMarkdown(invalid)).toThrow(/invalid relationships or identifiers/i);
+  });
+
+  it('rejects duplicate named view ids', () => {
+    const invalid = valid.replace(
+      '\n---\nNotes.',
+      `\n  views:\n    - id: compact\n      focus: all\n    - id: compact\n      focus: executive\n---\nNotes.`,
+    );
+    expect(() => parseVisualMarkdown(invalid)).toThrow(/invalid relationships or identifiers/i);
   });
 });

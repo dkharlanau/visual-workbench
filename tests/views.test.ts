@@ -85,6 +85,11 @@ describe('named views', () => {
     expect(projected.edges.some((edge) => edge.type === 'exception')).toBe(true);
   });
 
+  it('falls back to step nodes for an executive view of a simple process', () => {
+    const simple = parseVisualMarkdown(`---\nvisual:\n  title: Simple flow\n  nodes:\n    - id: one\n      label: One\n    - id: two\n      label: Two\n  edges:\n    - from: one\n      to: two\n  views:\n    - id: executive\n      focus: executive\n---`).visual;
+    expect(projectVisualView(simple, 'executive').nodes).toHaveLength(2);
+  });
+
   it('reports unknown views', () => {
     expect(() => projectVisualView(visual, 'missing')).toThrow(VisualViewError);
   });
