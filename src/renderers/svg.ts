@@ -1,4 +1,4 @@
-import type { LayoutResult, Point, PositionedEdge, PositionedNode } from '../layout.js';
+import type { LayoutResult, Point, PositionedEdge, PositionedGroup, PositionedNode } from '../layout.js';
 import type { VisualDocument } from '../schema.js';
 import { getTheme, type Theme } from '../themes.js';
 
@@ -31,6 +31,19 @@ function pathData(points: Point[]): string {
   const [first, ...rest] = points.map(shifted);
   if (!first) return '';
   return [`M ${first.x} ${first.y}`, ...rest.map((point) => `L ${point.x} ${point.y}`)].join(' ');
+}
+
+function renderGroup(group: PositionedGroup, theme: Theme): string {
+  const x = group.x + MARGIN;
+  const y = group.y + HEADER_HEIGHT;
+  const label = escapeXml(group.label);
+  const description = group.description ? `<title>${escapeXml(group.description)}</title>` : '';
+  return `<g data-group-id="${escapeXml(group.id)}">
+  ${description}
+  <rect x="${x}" y="${y}" width="${group.width}" height="${group.height}" rx="12" fill="${theme.card}" fill-opacity="0.48" stroke="${theme.border}"/>
+  <line x1="${x}" y1="${y + 30}" x2="${x + group.width}" y2="${y + 30}" stroke="${theme.border}"/>
+  <text x="${x + 14}" y="${y + 20}" font-size="10" font-weight="750" letter-spacing="1.1" fill="${theme.muted}">${label.toUpperCase()}</text>
+</g>`;
 }
 
 function edgeAppearance(edge: PositionedEdge, theme: Theme): { stroke: string; dash?: string; marker: string } {
@@ -107,6 +120,7 @@ export function renderSvg(visual: VisualDocument, layout: LayoutResult): string 
   <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
     <rect x="${width - MARGIN - kindWidth}" y="22" width="${kindWidth}" height="26" rx="13" fill="${theme.card}" stroke="${theme.border}"/>
     <text x="${width - MARGIN - kindWidth / 2}" y="39" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1" fill="${theme.muted}">${escapeXml(kind)}</text>
+    ${layout.groups.map((group) => renderGroup(group, theme)).join('\n')}
     ${layout.edges.map((edge) => renderEdge(edge, theme)).join('\n')}
     ${layout.nodes.map((node) => renderNode(node, theme)).join('\n')}
   </g>

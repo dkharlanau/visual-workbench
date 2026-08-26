@@ -36,7 +36,8 @@ function parallelOffsets(edges: PositionedEdge[]): Map<string, number> {
     const index = seen.get(key) ?? 0;
     seen.set(key, index + 1);
     const total = totals.get(key) ?? 1;
-    offsets.set(edge.id, (index - (total - 1) / 2) * 8);
+    const spacing = total <= 1 ? 0 : Math.min(8, 36 / (total - 1));
+    offsets.set(edge.id, (index - (total - 1) / 2) * spacing);
   });
   return offsets;
 }
