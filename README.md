@@ -6,21 +6,21 @@ Visual Workbench is a metadata-driven visual modeling engine for processes, plan
 
 The goal is not to be another drawing tool. It is a small visual language, method library and rendering engine that lets humans and agents describe **what things are and how they relate**, then produces consistent, business-readable views.
 
-## Why
+## What makes it different
 
 Most diagram-as-code tools still make authors think like diagram designers: boxes, arrows, shapes and layout hints. Visual Workbench moves the authoring layer up one level.
 
 ```text
-Meaning                   Visual method             Output
-──────────────────        ─────────────────         ─────────────
-steps                      process                   SVG
-systems                    system flow        ───▶   HTML
-business data              data flow                  docs
-milestones / outcomes      plan / roadmap             named views
-checkpoints                checkpoint flow
-handoffs                   handoff
-risks / exceptions         exception emphasis
-relationships              relationship map
+Semantic source
+    │
+    ├── process / handoff view
+    ├── executive view
+    ├── data view
+    ├── controls view
+    └── exceptions view
+              │
+              ▼
+     automatic business visual
 ```
 
 A model contains no x/y coordinates and no manually chosen colors.
@@ -30,45 +30,48 @@ A model contains no x/y coordinates and no manually chosen colors.
 ```yaml
 ---
 visual:
-  version: 1
-  title: Customer creation
-  description: Creation path with an operational checkpoint.
-  kind: checkpoint-flow
+  title: Order fulfillment
+  kind: handoff
+  groups:
+    - id: business
+      label: Business
+      order: 1
+    - id: platform
+      label: Platform
+      order: 2
   nodes:
-    - id: source
-      label: Customer created
-      type: system
-    - id: gate
-      label: Govern customer
-      type: checkpoint
-    - id: target
-      label: Customer available
+    - id: request
+      label: Order approved
       type: outcome
+      group: business
+    - id: validate
+      label: Validate payload
+      type: checkpoint
+      group: platform
+    - id: available
+      label: Order available
+      type: outcome
+      group: business
       status: success
   edges:
-    - from: source
-      to: gate
-      label: Customer
+    - from: request
+      to: validate
       type: data
-    - from: gate
-      to: target
+    - from: validate
+      to: available
       type: flow
   views:
     - id: executive
-      title: Customer availability
       focus: executive
       kind: process
-    - id: controls
-      focus: controls
-      kind: checkpoint-flow
 ---
 ```
 
 ```bash
 npm install
 npm run build
-node dist/cli.js render examples/supply-chain.md --view executive -o executive.svg
-node dist/cli.js views examples/supply-chain.md
+node dist/cli.js render examples/order-fulfillment-lanes.md -o handoffs.svg
+node dist/cli.js render examples/order-fulfillment-lanes.md --view executive -o executive.svg
 node dist/cli.js render-views examples/supply-chain.md --output-dir .artifacts/views
 ```
 
@@ -85,16 +88,19 @@ Markdown + semantic metadata
             ↓
       Visual method policy
             ↓
-   ELK.js layout + routing
+  ELK.js global graph layout
+            ↓
+ lane projection + edge rerouting
             ↓
  Visual Workbench visual grammar
             ├── SVG
             └── standalone HTML
 ```
 
-- **Graphology** keeps the semantic graph independent from any renderer and leaves room for graph analysis and agent queries.
-- **ELK.js** owns geometry: layered flow layouts, non-linear relationship layouts and edge routing.
-- **Custom SVG rendering** keeps the business visual grammar under our control instead of inheriting a generic graph-library aesthetic.
+- **Graphology** keeps the semantic graph independent from layout and rendering.
+- **ELK.js** establishes the global graph structure and flow.
+- **Visual Workbench lane composition** preserves ELK's global sequence while placing nodes into semantic ownership lanes and rebuilding orthogonal routes.
+- **Custom SVG rendering** keeps the business-facing visual grammar under our control.
 - A future **Cytoscape.js adapter** can provide interactive exploration without becoming the source of truth.
 
 ## Visual methods
@@ -107,11 +113,19 @@ See [visual method selection](docs/visual-methods.md).
 
 ## One model, multiple views
 
-Named views answer different questions from the same semantic source. Built-in focus presets are `all`, `executive`, `flow`, `data`, `controls` and `exceptions`. A view can also override the visual method and apply semantic filters.
+Named views answer different questions from the same semantic source. Built-in focus presets are `all`, `executive`, `flow`, `data`, `controls` and `exceptions`. A view can override the visual method and apply semantic filters.
 
-When a view hides an intermediate node, Visual Workbench can contract that hidden directed path so the visible business flow remains connected instead of producing disconnected boxes.
+When a view hides an intermediate node, Visual Workbench contracts the hidden directed path so the visible business flow remains connected instead of producing disconnected boxes.
 
 See [named views](docs/views.md).
+
+## Semantic lanes
+
+`groups` turn ownership, systems or responsibility boundaries into swimlanes. For left-to-right flows the lanes are horizontal; for top-to-bottom flows they become vertical automatically. Every node must belong to a lane when lane groups are active.
+
+Named views automatically remove lanes that become empty after projection.
+
+See [semantic groups and swimlanes](docs/groups.md).
 
 ## Semantic vocabulary
 
@@ -123,7 +137,7 @@ Status is semantic (`neutral`, `success`, `warning`, `danger`, `muted`). The ren
 
 ## Agent-ready
 
-`AGENTS.md` defines the core rule: **do not draw; model meaning**. Reusable skills in `skills/` teach agents to choose a method, build a compact semantic source and define views when one source must serve several audiences.
+`AGENTS.md` defines the core rule: **do not draw; model meaning**. Reusable skills in `skills/` teach agents to choose a method, build a compact semantic source and define views or lanes only when they improve the reader's question.
 
 The JSON Schema at `schemas/visual-workbench.schema.json` is intended for IDE validation and agent tooling.
 
@@ -136,16 +150,17 @@ src/
   model.ts            Graphology semantic graph
   views.ts            named-view projection + path contraction
   methods.ts          visual method policies
-  layout.ts           ELK adapter + sizing policy
+  layout.ts           ELK adapter + base graph geometry
+  lanes.ts            semantic lane projection + orthogonal rerouting
   themes.ts           presentation tokens
   renderers/          SVG + standalone HTML
   cli.ts              render / views / render-views / validate / inspect
 
-examples/              process, plan, data and supply-chain reference models
-docs/                  methodology, language, views, architecture and roadmap
+examples/              process, plan, data, supply-chain and handoff models
+docs/                  methodology, language, views, groups, architecture and roadmap
 schemas/               machine-readable metadata contract
 skills/                reusable visual-thinking agent skills
-tests/                 parser, method, view and rendering tests
+tests/                 parser, method, view, lane and rendering tests
 ```
 
 ## Design rules
@@ -157,10 +172,11 @@ tests/                 parser, method, view and rendering tests
 5. Choose the visual method from the question the reader needs answered.
 6. Generate multiple views from one semantic model instead of duplicating sources.
 7. Preserve meaningful connectivity when a view hides intermediate detail.
-8. Let agents produce or transform metadata, but keep final rendering deterministic.
+8. Use lanes for meaningful partitions such as ownership or system boundaries, not decoration.
+9. Let agents produce or transform metadata, but keep final rendering deterministic.
 
-See [the methodology](docs/methodology.md), [language reference](docs/language.md), [architecture](docs/architecture.md), [visual methods](docs/visual-methods.md), [named views](docs/views.md) and [roadmap](docs/roadmap.md).
+See [methodology](docs/methodology.md), [language](docs/language.md), [architecture](docs/architecture.md), [visual methods](docs/visual-methods.md), [named views](docs/views.md), [groups](docs/groups.md) and [roadmap](docs/roadmap.md).
 
 ## Status
 
-Current foundation: semantic Markdown → validated graph → named semantic views → method-specific automatic layout → SVG/HTML. Next: semantic groups/swimlanes, stronger timeline/roadmap grammar, visual regression and an interactive viewer.
+Current foundation: semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes → SVG/HTML. Next: richer roadmap/timeline grammar, visual regression, cluster views and an interactive workbench.

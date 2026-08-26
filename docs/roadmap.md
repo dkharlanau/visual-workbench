@@ -16,18 +16,21 @@
 - Process / checkpoint / data / system / planning / roadmap / timeline / handoff / dependency / relationship methods
 - Named views on one semantic model
 - Executive / flow / data / controls / exceptions focus presets
-- Explicit semantic filters by node type, group, tag, status and edge type
-- Semantic path contraction when filtered nodes would break visible connectivity
+- Explicit semantic filters
+- Semantic path contraction
 - CLI `views` and `render-views`
 
-## 0.3 — composition
+## 0.3 — semantic composition
 
-- Semantic groups and swimlanes
-- Group-aware ELK compound graphs
-- Decision branches and convergence
-- Timeline / roadmap-specific visual grammar beyond layout policy
-- Automatic legend and density reduction
-- Improved edge-label collision handling
+- Semantic ownership/system groups
+- Horizontal and vertical swimlane projection
+- Global ELK layout before lane constraints
+- Deterministic post-lane orthogonal routing
+- Empty-lane removal through named views
+- Parallel-edge routing offsets
+- Next: cluster/containment groups distinct from swimlanes
+- Next: decision branches and convergence grammar
+- Next: roadmap/timeline-specific visual grammar
 
 ## 0.4 — quality and portability
 
