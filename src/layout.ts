@@ -1,12 +1,14 @@
 import ELK from 'elkjs/lib/elk.bundled.js';
+import { applyLaneLayout } from './lanes.js';
 import { getVisualMethodPolicy } from './methods.js';
 import type { SemanticGraph } from './model.js';
-import type { VisualDocument, VisualEdge, VisualNode } from './schema.js';
+import type { VisualDocument, VisualEdge, VisualGroup, VisualNode } from './schema.js';
 
 export interface Point { x: number; y: number }
 export interface PositionedNode extends VisualNode { x: number; y: number; width: number; height: number }
 export interface PositionedEdge extends VisualEdge { id: string; points: Point[]; labelPosition?: Point }
-export interface LayoutResult { width: number; height: number; nodes: PositionedNode[]; edges: PositionedEdge[] }
+export interface PositionedGroup extends VisualGroup { x: number; y: number; width: number; height: number; orientation: 'horizontal' | 'vertical' }
+export interface LayoutResult { width: number; height: number; nodes: PositionedNode[]; edges: PositionedEdge[]; groups: PositionedGroup[] }
 
 const elk = new ELK();
 
@@ -108,10 +110,12 @@ export async function layoutGraph(graph: SemanticGraph, visual: VisualDocument):
       : midpoint(points);
     return { id: edge.id, ...attributes, points, ...(labelPosition ? { labelPosition } : {}) };
   });
-  return {
+  const base: LayoutResult = {
     width: Math.max(320, laidOut.width ?? 320),
     height: Math.max(180, laidOut.height ?? 180),
     nodes: positionedNodes,
     edges: positionedEdges,
+    groups: [],
   };
+  return applyLaneLayout(base, visual);
 }

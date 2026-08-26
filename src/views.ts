@@ -103,7 +103,6 @@ function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: Vi
   const direct = allowedEdges.filter((edge) => selectedIds.has(edge.from) && selectedIds.has(edge.to));
   const results: VisualEdge[] = [...direct];
   const occupiedBridgeKeys = new Set(direct.map((edge) => `${edge.from}|${edge.to}|${edge.type}`));
-
   const outgoing = new Map<string, VisualEdge[]>();
   allowedEdges.forEach((edge) => {
     const list = outgoing.get(edge.from) ?? [];
@@ -116,7 +115,6 @@ function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: Vi
   for (const source of selectedIds) {
     const queue: Array<{ nodeId: string; path: VisualEdge[]; hiddenIds: string[] }> = [{ nodeId: source, path: [], hiddenIds: [] }];
     const bestDepth = new Map<string, number>([[source, 0]]);
-
     while (queue.length > 0) {
       const current = queue.shift();
       if (!current) break;
@@ -143,7 +141,6 @@ function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: Vi
           }
           continue;
         }
-
         const nextDepth = current.hiddenIds.length + 1;
         if (nextDepth > maxHiddenDepth) continue;
         const previousDepth = bestDepth.get(edge.to);
@@ -153,7 +150,6 @@ function projectEdges(visual: VisualDocument, selectedIds: Set<string>, view: Vi
       }
     }
   }
-
   return results;
 }
 
@@ -165,31 +161,28 @@ export interface VisualViewSummary {
 }
 
 export function listVisualViews(visual: VisualDocument): VisualViewSummary[] {
-  return visual.views.map((view) => ({
-    id: view.id,
-    title: view.title ?? view.id,
-    focus: view.focus,
-    kind: view.kind ?? visual.kind,
-  }));
+  return visual.views.map((view) => ({ id: view.id, title: view.title ?? view.id, focus: view.focus, kind: view.kind ?? visual.kind }));
 }
 
 export function projectVisualView(visual: VisualDocument, viewId?: string): VisualDocument {
   if (!viewId) return visual;
   const view = visual.views.find((candidate) => candidate.id === viewId);
-  if (!view) {
-    throw new VisualViewError(`Unknown visual view: ${viewId}`, visual.views.map((candidate) => candidate.id));
-  }
+  if (!view) throw new VisualViewError(`Unknown visual view: ${viewId}`, visual.views.map((candidate) => candidate.id));
 
   const candidateIds = presetIds(visual, view.focus);
   const nodes = visual.nodes.filter((node) => candidateIds.has(node.id) && passesNodeFilters(node, view));
   const nodeIds = new Set(nodes.map((node) => node.id));
   const edges = projectEdges(visual, nodeIds, view);
+  if (nodes.length === 0) throw new VisualViewError(`View ${view.id} selected no nodes.`, ['Relax the focus or include filters for this view.']);
 
-  if (nodes.length === 0) {
-    throw new VisualViewError(`View ${view.id} selected no nodes.`, ['Relax the focus or include filters for this view.']);
-  }
-
-  const projected: VisualDocument = { ...visual, nodes, edges, views: [] };
+  const activeGroups = new Set(nodes.flatMap((node) => node.group ? [node.group] : []));
+  const projected: VisualDocument = {
+    ...visual,
+    groups: visual.groups.filter((group) => activeGroups.has(group.id)),
+    nodes,
+    edges,
+    views: [],
+  };
   if (view.title) projected.title = view.title;
   if (view.description) projected.description = view.description;
   if (view.kind) projected.kind = view.kind;
