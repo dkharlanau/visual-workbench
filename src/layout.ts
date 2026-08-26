@@ -1,4 +1,4 @@
-import ELK from 'elkjs/lib/elk.bundled.js';
+import ELKModule from 'elkjs/lib/elk.bundled.js';
 import { applyLaneLayout } from './lanes.js';
 import { getVisualMethodPolicy } from './methods.js';
 import type { SemanticGraph } from './model.js';
@@ -10,6 +10,50 @@ export interface PositionedEdge extends VisualEdge { id: string; points: Point[]
 export interface PositionedGroup extends VisualGroup { x: number; y: number; width: number; height: number; orientation: 'horizontal' | 'vertical' }
 export interface LayoutResult { width: number; height: number; nodes: PositionedNode[]; edges: PositionedEdge[]; groups: PositionedGroup[] }
 
+interface ElkLayoutNode {
+  id: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+}
+
+interface ElkLayoutLabel {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+}
+
+interface ElkLayoutSection {
+  startPoint?: Point;
+  endPoint?: Point;
+  bendPoints?: Point[];
+}
+
+interface ElkLayoutEdge {
+  id: string;
+  sections?: ElkLayoutSection[];
+  labels?: ElkLayoutLabel[];
+}
+
+interface ElkLayoutResult {
+  width?: number;
+  height?: number;
+  children?: ElkLayoutNode[];
+  edges?: ElkLayoutEdge[];
+}
+
+interface ElkLayoutEngine {
+  layout(graph: unknown): Promise<ElkLayoutResult>;
+}
+
+type ElkConstructor = new () => ElkLayoutEngine;
+
+// elkjs ships CommonJS-style bundled typings that TypeScript's NodeNext mode can
+// interpret as a module namespace instead of a constructor. The runtime default
+// export is constructable, so keep the cast at this single integration boundary.
+const ELK = ELKModule as unknown as ElkConstructor;
 const elk = new ELK();
 
 function clamp(value: number, min: number, max: number): number {
@@ -81,12 +125,12 @@ export async function layoutGraph(graph: SemanticGraph, visual: VisualDocument):
     };
   });
   const laidOut = await elk.layout({ id: 'root', layoutOptions: layoutOptions(visual), children, edges });
-  const positionedNodes: PositionedNode[] = (laidOut.children ?? []).map((child) => {
+  const positionedNodes: PositionedNode[] = (laidOut.children ?? []).map((child: ElkLayoutNode) => {
     const attributes = graph.getNodeAttributes(child.id) as VisualNode;
     return { ...attributes, x: child.x ?? 0, y: child.y ?? 0, width: child.width ?? 200, height: child.height ?? 80 };
   });
   const byId = new Map(positionedNodes.map((node) => [node.id, node]));
-  const positionedEdges: PositionedEdge[] = (laidOut.edges ?? []).map((edge) => {
+  const positionedEdges: PositionedEdge[] = (laidOut.edges ?? []).map((edge: ElkLayoutEdge) => {
     const attributes = graph.getEdgeAttributes(edge.id) as VisualEdge;
     const source = graph.source(edge.id);
     const target = graph.target(edge.id);
