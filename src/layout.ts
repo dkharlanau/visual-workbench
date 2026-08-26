@@ -1,4 +1,5 @@
 import ELK from 'elkjs/lib/elk.bundled.js';
+import { getVisualMethodPolicy } from './methods.js';
 import type { SemanticGraph } from './model.js';
 import type { VisualDocument, VisualEdge, VisualNode } from './schema.js';
 
@@ -23,11 +24,6 @@ function nodeSize(node: VisualNode, density: VisualDocument['density']): { width
   return { width: Math.round(width), height: Math.round(height) };
 }
 
-function directionToElk(direction: VisualDocument['direction']): string {
-  const directions: Record<VisualDocument['direction'], string> = { right: 'RIGHT', down: 'DOWN', left: 'LEFT', up: 'UP' };
-  return directions[direction];
-}
-
 function densitySpacing(density: VisualDocument['density']): { node: number; layer: number } {
   if (density === 'compact') return { node: 28, layer: 62 };
   if (density === 'airy') return { node: 58, layer: 112 };
@@ -48,8 +44,26 @@ function midpoint(points: Point[]): Point | undefined {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
-export async function layoutGraph(graph: SemanticGraph, visual: VisualDocument): Promise<LayoutResult> {
+function layoutOptions(visual: VisualDocument): Record<string, string> {
   const spacing = densitySpacing(visual.density);
+  const method = getVisualMethodPolicy(visual);
+  const options: Record<string, string> = {
+    'elk.algorithm': method.algorithm,
+    'elk.edgeRouting': method.edgeRouting,
+    'elk.spacing.nodeNode': String(Math.round(spacing.node * method.nodeSpacingMultiplier)),
+    'elk.padding': '[top=30,left=30,bottom=30,right=30]',
+  };
+  if (method.direction) options['elk.direction'] = method.direction;
+  if (method.algorithm === 'layered') {
+    options['elk.layered.spacing.nodeNodeBetweenLayers'] = String(Math.round(spacing.layer * method.layerSpacingMultiplier));
+    options['elk.layered.nodePlacement.strategy'] = 'NETWORK_SIMPLEX';
+    options['elk.layered.crossingMinimization.strategy'] = 'LAYER_SWEEP';
+    options['elk.layered.cycleBreaking.strategy'] = 'GREEDY';
+  }
+  return options;
+}
+
+export async function layoutGraph(graph: SemanticGraph, visual: VisualDocument): Promise<LayoutResult> {
   const children = graph.mapNodes((id, attributes) => {
     const size = nodeSize(attributes, visual.density);
     return { id, width: size.width, height: size.height };
@@ -60,22 +74,7 @@ export async function layoutGraph(graph: SemanticGraph, visual: VisualDocument):
     targets: [target],
     ...(attributes.label ? { labels: [{ id: `${id}:label`, text: attributes.label, ...estimateEdgeLabel(attributes.label) }] } : {}),
   }));
-  const laidOut = await elk.layout({
-    id: 'root',
-    layoutOptions: {
-      'elk.algorithm': 'layered',
-      'elk.direction': directionToElk(visual.direction),
-      'elk.edgeRouting': 'ORTHOGONAL',
-      'elk.spacing.nodeNode': String(spacing.node),
-      'elk.layered.spacing.nodeNodeBetweenLayers': String(spacing.layer),
-      'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
-      'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',
-      'elk.layered.cycleBreaking.strategy': 'GREEDY',
-      'elk.padding': '[top=30,left=30,bottom=30,right=30]',
-    },
-    children,
-    edges,
-  });
+  const laidOut = await elk.layout({ id: 'root', layoutOptions: layoutOptions(visual), children, edges });
   const positionedNodes: PositionedNode[] = (laidOut.children ?? []).map((child) => {
     const attributes = graph.getNodeAttributes(child.id) as VisualNode;
     return { ...attributes, x: child.x ?? 0, y: child.y ?? 0, width: child.width ?? 200, height: child.height ?? 80 };
