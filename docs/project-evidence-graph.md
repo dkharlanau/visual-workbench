@@ -33,12 +33,17 @@ SVG / HTML
 The adapter therefore:
 
 - never rewrites the input artifact;
-- preserves every external artifact ID in the rendered node subtitle and provenance tag;
-- derives internal Visual Workbench IDs deterministically because Project Evidence IDs may contain characters outside the Visual Workbench identifier grammar;
-- rejects duplicate artifact IDs;
-- rejects links whose endpoints do not exist in the supplied graph;
+- preserves every local artifact ID in the rendered node subtitle and provenance tag;
+- preserves `external_bridges` as visual control/evidence relationships instead of dropping cross-repository assurance context;
+- materializes an external bridge target only as a neutral **reference node** carrying the external logical ID — not as locally verified evidence;
+- derives internal Visual Workbench IDs deterministically because Project Evidence IDs and external logical references may contain characters outside the Visual Workbench identifier grammar;
+- rejects duplicate local artifact IDs;
+- rejects local links whose endpoints do not exist in the supplied graph;
+- rejects an external bridge when its source is not a known local Project Evidence artifact;
 - keeps the original relationship type as the edge label and note;
 - converts project artifact types/statuses into the closest visual vocabulary without claiming that the visual type replaces the upstream semantic type.
+
+An external target reference is intentionally not dereferenced, executed or revalidated by Visual Workbench. Its producer/consumer trust and compatibility rules remain owned by the upstream portfolio contracts.
 
 ## Current type projection
 
@@ -55,12 +60,13 @@ The adapter therefore:
 | checkpoint / control | checkpoint |
 | task / process / cutover_task | step |
 | unknown artifact type | note |
+| external bridge target | neutral outcome/reference |
 
-The original artifact type remains available as `artifact:<type>` in node tags.
+The original artifact type remains available as `artifact:<type>` in node tags. External reference nodes carry the `external-reference` tag plus their logical source ID.
 
 Relationships are projected conservatively:
 
-- verification/evidence relations → `control`;
+- verification/evidence relations, including `substantiated_by` external bridges → `control`;
 - failure/exception relations → `exception`;
 - implementation/dependency relations → `dependency`;
 - mapping/transfer relations → `data`;
