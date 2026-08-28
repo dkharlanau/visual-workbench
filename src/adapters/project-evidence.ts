@@ -19,6 +19,7 @@ const ProjectEvidenceLinkSchema = z.object({
 export const ProjectEvidenceGraphSchema = z.object({
   nodes: z.array(ProjectEvidenceNodeSchema).min(1),
   links: z.array(ProjectEvidenceLinkSchema).default([]),
+  external_bridges: z.array(ProjectEvidenceLinkSchema).default([]),
 }).passthrough();
 
 export type ProjectEvidenceGraph = z.infer<typeof ProjectEvidenceGraphSchema>;
@@ -92,6 +93,20 @@ function mapNode(node: z.infer<typeof ProjectEvidenceNodeSchema>, visualId: stri
   };
 }
 
+function mapEdge(link: z.infer<typeof ProjectEvidenceLinkSchema>, idMap: Map<string, string>, external = false): VisualEdge {
+  const type = edgeType(link.type);
+  return {
+    from: idMap.get(link.from)!,
+    to: idMap.get(link.to)!,
+    label: link.type.replace(/_/g, ' '),
+    type,
+    status: type === 'exception' ? 'danger' : 'neutral',
+    note: external
+      ? `Project Evidence Graph external bridge: ${link.type}`
+      : `Project Evidence Graph relation: ${link.type}`,
+  };
+}
+
 export function adaptProjectEvidenceGraph(input: unknown, title = 'Project evidence'): VisualDocument {
   const parsed = ProjectEvidenceGraphSchema.safeParse(input);
   if (!parsed.success) {
@@ -120,18 +135,37 @@ export function adaptProjectEvidenceGraph(input: unknown, title = 'Project evide
     throw new ProjectEvidenceAdapterError('Project Evidence Graph contains unresolved link endpoints.', unresolved);
   }
 
-  const nodes = parsed.data.nodes.map((node) => mapNode(node, idMap.get(node.id)!));
-  const edges: VisualEdge[] = parsed.data.links.map((link) => {
-    const type = edgeType(link.type);
-    return {
-      from: idMap.get(link.from)!,
-      to: idMap.get(link.to)!,
-      label: link.type.replace(/_/g, ' '),
-      type,
-      status: type === 'exception' ? 'danger' : 'neutral',
-      note: `Project Evidence Graph relation: ${link.type}`,
-    };
-  });
+  const invalidExternalSources = parsed.data.external_bridges
+    .filter((bridge) => !sourceIds.has(bridge.from))
+    .map((bridge) => `${bridge.from} -> ${bridge.to} (${bridge.type})`);
+  if (invalidExternalSources.length > 0) {
+    throw new ProjectEvidenceAdapterError('Project Evidence Graph contains external bridges from unknown local artifacts.', invalidExternalSources);
+  }
+
+  const externalTargets = new Set(
+    parsed.data.external_bridges
+      .map((bridge) => bridge.to)
+      .filter((target) => !sourceIds.has(target)),
+  );
+  for (const target of externalTargets) idMap.set(target, stableVisualId(target));
+
+  const nodes: VisualNode[] = parsed.data.nodes.map((node) => mapNode(node, idMap.get(node.id)!));
+  for (const target of [...externalTargets].sort()) {
+    nodes.push({
+      id: idMap.get(target)!,
+      label: 'External evidence reference',
+      type: 'outcome',
+      subtitle: target,
+      description: 'External artifact referenced by Project Evidence Graph. The target remains owned and validated by its source repository.',
+      status: 'neutral',
+      tags: ['project-evidence', 'external-reference', `source-id:${target}`],
+    });
+  }
+
+  const edges: VisualEdge[] = [
+    ...parsed.data.links.map((link) => mapEdge(link, idMap)),
+    ...parsed.data.external_bridges.map((bridge) => mapEdge(bridge, idMap, true)),
+  ];
 
   return {
     version: 1,
