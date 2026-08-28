@@ -1,7 +1,7 @@
 {
   "adapter_fixture": {
     "producer": "dkharlanau/project-evidence-graph",
-    "contract": "nodes+links",
+    "contract": "nodes+links+external_bridges",
     "purpose": "Synthetic adapter smoke fixture; not a second semantic source of truth."
   },
   "nodes": [
@@ -18,5 +18,8 @@
     {"from": "MAP:legacy/country", "to": "TEST-001", "type": "verified_by"},
     {"from": "TEST-001", "to": "DEF-001", "type": "revealed"},
     {"from": "DEF-001", "to": "EVID-001", "type": "fixed_by"}
+  ],
+  "external_bridges": [
+    {"from": "EVID-001", "to": "eac://reconciliation-as-code/run/customer-country", "type": "substantiated_by"}
   ]
 }
