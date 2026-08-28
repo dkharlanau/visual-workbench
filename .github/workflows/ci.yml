@@ -35,3 +35,6 @@ jobs:
           node dist/cli.js render-views examples/supply-chain.md --output-dir .artifacts/views
           node dist/cli.js render examples/order-fulfillment-lanes.md -o .artifacts/order-fulfillment-lanes.svg
           node dist/cli.js render examples/order-fulfillment-lanes.md --view executive -o .artifacts/order-fulfillment.executive.svg
+          node dist/cli.js render-project-evidence examples/project-evidence-graph.json -o .artifacts/project-evidence.svg
+          node dist/cli.js render-project-evidence examples/project-evidence-graph.json --view assurance -o .artifacts/project-evidence.assurance.html
+          node dist/cli.js render-project-evidence examples/project-evidence-graph.json --view exceptions -o .artifacts/project-evidence.exceptions.svg

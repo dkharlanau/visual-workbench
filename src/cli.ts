@@ -2,7 +2,16 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { Command } from 'commander';
-import { buildSemanticGraph, listVisualViews, projectVisualView, renderMarkdown, summarizeGraph } from './index.js';
+import {
+  adaptProjectEvidenceGraph,
+  buildSemanticGraph,
+  listVisualViews,
+  projectVisualView,
+  renderMarkdown,
+  renderVisual,
+  summarizeGraph,
+} from './index.js';
+import { ProjectEvidenceAdapterError } from './adapters/project-evidence.js';
 import { parseVisualMarkdown, VisualWorkbenchError } from './parser.js';
 import { VisualViewError } from './views.js';
 
@@ -32,6 +41,27 @@ program.command('render')
     const outputPath = resolve(options.output ?? inputPath.replace(/\.md$/i, `${suffix}.${format}`));
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, await renderMarkdown(markdown, format, options.view), 'utf8');
+    console.log(`Rendered ${outputPath}`);
+  });
+
+program.command('render-project-evidence')
+  .description('Render a Project Evidence Graph JSON artifact without copying its semantic source of truth.')
+  .argument('<input>', 'Project Evidence Graph JSON file')
+  .option('-o, --output <file>', 'Output file')
+  .option('-f, --format <format>', 'svg or html')
+  .option('-v, --view <id>', 'Derived view: executive, assurance or exceptions')
+  .option('-t, --title <title>', 'Visual title override')
+  .action(async (input: string, options: { output?: string; format?: string; view?: string; title?: string }) => {
+    const inputPath = resolve(input);
+    const raw = JSON.parse(await readFile(inputPath, 'utf8')) as unknown;
+    const visual = options.title ? adaptProjectEvidenceGraph(raw, options.title) : adaptProjectEvidenceGraph(raw);
+    const projected = projectVisualView(visual, options.view);
+    const format = resolveFormat(options.format, options.output);
+    const suffix = options.view ? `.${options.view}` : '';
+    const stem = basename(inputPath, extname(inputPath));
+    const outputPath = resolve(options.output ?? join(dirname(inputPath), `${stem}${suffix}.${format}`));
+    await mkdir(dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, await renderVisual(projected, format), 'utf8');
     console.log(`Rendered ${outputPath}`);
   });
 
@@ -94,7 +124,7 @@ program.command('views')
   });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
-  if (error instanceof VisualWorkbenchError || error instanceof VisualViewError) {
+  if (error instanceof VisualWorkbenchError || error instanceof VisualViewError || error instanceof ProjectEvidenceAdapterError) {
     console.error(error.message);
     error.details.forEach((detail) => console.error(`- ${detail}`));
   } else {

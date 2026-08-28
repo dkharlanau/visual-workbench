@@ -15,6 +15,7 @@ export * from './methods.js';
 export * from './views.js';
 export * from './renderers/svg.js';
 export * from './renderers/html.js';
+export * from './adapters/project-evidence.js';
 
 export interface PreparedVisual {
   parsed: ParsedVisualMarkdown;
