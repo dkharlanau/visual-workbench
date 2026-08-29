@@ -3,7 +3,15 @@ name: Publish Product Page
 on:
   push:
     branches: [main]
-    paths: ["docs/product.html", "docs/agent-manifest.json", ".github/workflows/product-pages.yml"]
+    paths:
+      - "docs/product.html"
+      - "docs/agent-manifest.json"
+      - "examples/**"
+      - "src/**"
+      - "schemas/**"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/product-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -22,12 +30,44 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v6
-      - name: Stage product site
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build renderer
         run: |
-          mkdir -p _site
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Stage product site and generated proof gallery
+        run: |
+          mkdir -p _site/gallery
           cp docs/product.html _site/index.html
           cp docs/agent-manifest.json _site/agent-manifest.json
+
+          node dist/cli.js render examples/order-fulfillment-lanes.md \
+            -o _site/gallery/order-fulfillment-handoffs.svg
+          node dist/cli.js render examples/order-fulfillment-lanes.md \
+            --view executive -o _site/gallery/order-fulfillment-executive.svg
+          node dist/cli.js render examples/supply-chain.md \
+            --view executive -o _site/gallery/supply-chain-executive.svg
+          node dist/cli.js render examples/product-plan.md \
+            -o _site/gallery/product-plan.svg
+          node dist/cli.js render-project-evidence examples/project-evidence-graph.json \
+            --view exceptions -o _site/gallery/project-evidence-exceptions.svg
+
+          cat > _site/gallery/manifest.json <<'JSON'
+          {
+            "generated_by": "visual-workbench",
+            "source": "repository examples",
+            "outputs": [
+              "order-fulfillment-handoffs.svg",
+              "order-fulfillment-executive.svg",
+              "supply-chain-executive.svg",
+              "product-plan.svg",
+              "project-evidence-exceptions.svg"
+            ]
+          }
+          JSON
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
