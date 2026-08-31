@@ -176,6 +176,7 @@ export function adaptProjectEvidenceGraph(input: unknown, title = 'Project evide
     theme: 'paper',
     density: 'balanced',
     groups: [],
+    stages: [],
     nodes,
     edges,
     views: [

@@ -17,10 +17,11 @@ An agent should never invent x/y coordinates, colors, edge bends or decorative s
 5. Classify relationships (`flow`, `data`, `dependency`, `control`, `exception`).
 6. Put operational meaning into `status`, `owner`, `subtitle` and edge labels. Do not encode meaning through requested colors.
 7. Use semantic `groups` only when ownership, system boundary or another mutually exclusive lane helps answer the question. If groups are used, assign every node to one lane.
-8. If the same source must answer different questions or serve different audiences, define named `views` instead of duplicating models.
-9. Use focus presets first; add explicit semantic filters only when they improve the question being answered.
-10. Run `vwb validate <file>`.
-11. Render and inspect. If a view is crowded, reduce that view's semantic scope before adding presentation controls.
+8. For a roadmap or timeline, use ordered semantic `stages` and assign every node to one stage. Do not simulate periods with coordinates or decorative groups. Lane groups and stages cannot be combined in one model yet.
+9. If the same source must answer different questions or serve different audiences, define named `views` instead of duplicating models.
+10. Use focus presets first; add explicit semantic filters only when they improve the question being answered.
+11. Run `vwb validate <file>`.
+12. Render and inspect. If a view is crowded, reduce that view's semantic scope before adding presentation controls.
 
 ## Quality rules
 
@@ -32,4 +33,5 @@ An agent should never invent x/y coordinates, colors, edge bends or decorative s
 - Do not duplicate a node just to improve layout.
 - Use named views for executive, data, control or exception perspectives on one source.
 - Use lanes for meaningful partitions, not visual decoration.
+- Use stages for meaningful planning periods, not manually drawn columns.
 - A projected view should preserve meaningful connectivity; hidden intermediary detail must not silently break the visible flow.

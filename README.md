@@ -133,6 +133,17 @@ Named views automatically remove lanes that become empty after projection.
 
 See [semantic groups and swimlanes](docs/groups.md).
 
+## Staged roadmaps
+
+`stages` express ordered planning periods such as Now, Next, Pilot and Scale. The renderer derives bands, spacing and edge routes; authors assign meaning without drawing columns. Every node must belong to a stage while stages are active. Stages and lane groups cannot be combined in one model yet.
+
+```bash
+node dist/cli.js render examples/product-roadmap.md -o product-roadmap.svg
+node dist/cli.js render examples/product-roadmap.md --view outcomes -o roadmap-outcomes.svg
+```
+
+Named views can use `includeStages` and `excludeStages` to focus on selected periods. See the [metadata language](docs/language.md) and the [complete roadmap example](examples/product-roadmap.md).
+
 ## Semantic vocabulary
 
 Nodes: `step`, `system`, `data`, `role`, `decision`, `checkpoint`, `milestone`, `outcome`, `risk`, `note`.
@@ -158,11 +169,12 @@ src/
   methods.ts          visual method policies
   layout.ts           ELK adapter + base graph geometry
   lanes.ts            semantic lane projection + orthogonal rerouting
+  stages.ts           ordered roadmap stage composition + routing
   themes.ts           presentation tokens
   renderers/          SVG + standalone HTML
   cli.ts              render / views / render-views / validate / inspect
 
-examples/              process, plan, data, supply-chain and handoff models
+examples/              process, plan, roadmap, data, supply-chain and handoff models
 docs/                  methodology, language, views, groups, architecture and roadmap
 schemas/               machine-readable metadata contract
 skills/                reusable visual-thinking agent skills
@@ -179,13 +191,14 @@ tests/                 parser, method, view, lane and rendering tests
 6. Generate multiple views from one semantic model instead of duplicating sources.
 7. Preserve meaningful connectivity when a view hides intermediate detail.
 8. Use lanes for meaningful partitions such as ownership or system boundaries, not decoration.
-9. Let agents produce or transform metadata, but keep final rendering deterministic.
+9. Use stages for meaningful planning periods, not manually drawn columns.
+10. Let agents produce or transform metadata, but keep final rendering deterministic.
 
 See [methodology](docs/methodology.md), [language](docs/language.md), [architecture](docs/architecture.md), [visual methods](docs/visual-methods.md), [named views](docs/views.md), [groups](docs/groups.md) and [roadmap](docs/roadmap.md).
 
 ## Status
 
-**v0.1 source distribution.** Semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes → SVG/HTML is implemented and exercised by the public generated gallery. npm publication is not part of the current distribution contract. Next: richer roadmap/timeline grammar, visual regression, cluster views and an interactive workbench.
+**v0.1 source distribution.** Semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes or roadmap stages → SVG/HTML is implemented and exercised by the public generated gallery. npm publication is not part of the current distribution contract. Next: timeline-specific date grammar, visual regression, cluster views and an interactive workbench.
 
 ## License
 

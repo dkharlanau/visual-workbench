@@ -54,6 +54,8 @@ jobs:
             --view executive -o _site/gallery/supply-chain-executive.svg
           node dist/cli.js render examples/product-plan.md \
             -o _site/gallery/product-plan.svg
+          node dist/cli.js render examples/product-roadmap.md \
+            -o _site/gallery/product-roadmap.svg
           node dist/cli.js render-project-evidence examples/project-evidence-graph.json \
             --view exceptions -o _site/gallery/project-evidence-exceptions.svg
 
@@ -66,6 +68,7 @@ jobs:
               "order-fulfillment-executive.svg",
               "supply-chain-executive.svg",
               "product-plan.svg",
+              "product-roadmap.svg",
               "project-evidence-exceptions.svg"
             ]
           }
@@ -75,6 +78,7 @@ jobs:
           test -s _site/gallery/order-fulfillment-executive.svg
           test -s _site/gallery/supply-chain-executive.svg
           test -s _site/gallery/product-plan.svg
+          test -s _site/gallery/product-roadmap.svg
           test -s _site/gallery/project-evidence-exceptions.svg
       - name: Configure Pages
         uses: actions/configure-pages@v6

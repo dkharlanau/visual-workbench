@@ -54,6 +54,7 @@ visual:
 | `theme` | paper, slate | Presentation theme |
 | `density` | airy, balanced, compact | Spacing policy |
 | `groups` | array | Optional semantic swimlanes |
+| `stages` | array | Optional ordered roadmap or timeline periods |
 | `nodes` | array | Semantic entities |
 | `edges` | array | Semantic relationships |
 | `views` | array | Optional named projections of the same semantic model |
@@ -66,11 +67,19 @@ Optional: `kind` (`lane`), `description`, `order`.
 
 When groups are present, every node must reference a valid group. Group IDs are unique. Views may filter groups with `includeGroups` and `excludeGroups`.
 
+## Stage fields
+
+Required: `id`, `label`.
+
+Optional: `timeframe`, `description`, `order`.
+
+Stages are semantic planning periods, not manually positioned columns. When stages are present, every node must reference a valid stage. Stage IDs are unique. Lane groups and stages cannot be combined in the same model yet; use a named view or a separate model when both perspectives are needed. Views may filter stages with `includeStages` and `excludeStages`.
+
 ## Node fields
 
 Required: `id`, `label`.
 
-Optional: `type`, `subtitle`, `description`, `owner`, `group`, `status`, `tags`.
+Optional: `type`, `subtitle`, `description`, `owner`, `group`, `stage`, `status`, `tags`.
 
 Statuses are `neutral`, `success`, `warning`, `danger`, and `muted`. Status describes meaning, not a user-selected color.
 
@@ -84,8 +93,8 @@ Optional: `label`, `type`, `status`, `note`.
 
 Required: `id`.
 
-A view may use `title`, `description`, `focus`, `kind`, `direction`, `theme`, `density`, `includeNodeTypes`, `excludeNodeTypes`, `includeGroups`, `excludeGroups`, `includeTags`, `statuses`, `includeEdgeTypes` and `excludeEdgeTypes`.
+A view may use `title`, `description`, `focus`, `kind`, `direction`, `theme`, `density`, `includeNodeTypes`, `excludeNodeTypes`, `includeGroups`, `excludeGroups`, `includeStages`, `excludeStages`, `includeTags`, `statuses`, `includeEdgeTypes` and `excludeEdgeTypes`.
 
 Focus presets are `all`, `executive`, `flow`, `data`, `controls` and `exceptions`. See [`docs/views.md`](views.md).
 
-The parser rejects duplicate node/group/view IDs, missing relationship targets, invalid group references and self-loops.
+The parser rejects duplicate node/group/stage/view IDs, missing relationship targets, invalid group or stage references, incomplete group/stage assignment, combined groups and stages, and self-loops.

@@ -28,9 +28,11 @@
 - Deterministic post-lane orthogonal routing
 - Empty-lane removal through named views
 - Parallel-edge routing offsets
+- Ordered semantic roadmap stages with required node assignment
+- Automatic stage bands, stage-aware views and deterministic routing
 - Next: cluster/containment groups distinct from swimlanes
 - Next: decision branches and convergence grammar
-- Next: roadmap/timeline-specific visual grammar
+- Next: timeline-specific date and interval grammar
 
 ## 0.4 — quality and portability
 

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { parseVisualMarkdown } from '../src/parser.js';
 import { applyStageLayout } from '../src/stages.js';
 import type { LayoutResult } from '../src/layout.js';
 import { VisualDocumentSchema } from '../src/schema.js';
+import { projectVisualView } from '../src/views.js';
 
 function fixture(direction: 'right' | 'left' = 'right') {
   const visual = VisualDocumentSchema.parse({
@@ -57,5 +59,24 @@ describe('stage layout', () => {
     const sameStage = result.edges.find((edge) => edge.from === 'a' && edge.to === 'b');
     expect(sameStage?.points.length).toBeGreaterThanOrEqual(2);
     expect(sameStage?.points[0]?.x).toBeCloseTo(sameStage?.points.at(-1)?.x ?? 0, 5);
+  });
+
+  it('validates staged Markdown and rejects incomplete stage assignment', () => {
+    const valid = `---\nvisual:\n  title: Roadmap\n  kind: roadmap\n  stages:\n    - id: now\n      label: Now\n  nodes:\n    - id: ready\n      label: Ready\n      stage: now\n---\n`;
+    expect(parseVisualMarkdown(valid).visual.stages[0]?.id).toBe('now');
+
+    const invalid = valid.replace('      stage: now\n', '');
+    expect(() => parseVisualMarkdown(invalid)).toThrow('has no stage while roadmap stages are active');
+  });
+
+  it('projects a named view to selected stages and removes empty stages', () => {
+    const { visual } = fixture();
+    const withView = VisualDocumentSchema.parse({
+      ...visual,
+      views: [{ id: 'next-only', focus: 'all', includeStages: ['next'] }],
+    });
+    const projected = projectVisualView(withView, 'next-only');
+    expect(projected.nodes.map((node) => node.id)).toEqual(['c']);
+    expect(projected.stages.map((stage) => stage.id)).toEqual(['next']);
   });
 });
