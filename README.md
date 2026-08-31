@@ -4,6 +4,8 @@
 
 Visual Workbench is a metadata-driven visual modeling engine for processes, plans, data flows, checkpoints, handoffs, dependencies and relationships. The source of truth is Markdown + structured metadata; layout and presentation are generated automatically.
 
+[Open the live generated gallery](https://dkharlanau.github.io/visual-workbench/).
+
 The goal is not to be another drawing tool. It is a small visual language, method library and rendering engine that lets humans and agents describe **what things are and how they relate**, then produces consistent, business-readable views.
 
 ## What makes it different
@@ -67,8 +69,12 @@ visual:
 ---
 ```
 
+The package is not published to the npm registry. The supported v0.1 path is to run it from a checked-out repository with Node.js 20 or later:
+
 ```bash
-npm install
+git clone https://github.com/dkharlanau/visual-workbench.git
+cd visual-workbench
+npm ci
 npm run build
 node dist/cli.js render examples/order-fulfillment-lanes.md -o handoffs.svg
 node dist/cli.js render examples/order-fulfillment-lanes.md --view executive -o executive.svg
@@ -179,4 +185,8 @@ See [methodology](docs/methodology.md), [language](docs/language.md), [architect
 
 ## Status
 
-Current foundation: semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes → SVG/HTML. Next: richer roadmap/timeline grammar, visual regression, cluster views and an interactive workbench.
+**v0.1 source distribution.** Semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes → SVG/HTML is implemented and exercised by the public generated gallery. npm publication is not part of the current distribution contract. Next: richer roadmap/timeline grammar, visual regression, cluster views and an interactive workbench.
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).

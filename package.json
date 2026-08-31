@@ -1,7 +1,17 @@
 {
   "name": "@dkharlanau/visual-workbench",
   "version": "0.1.0",
+  "private": true,
   "description": "Metadata-driven visual modeling engine for processes, plans, data flows and relationships.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkharlanau/visual-workbench.git"
+  },
+  "homepage": "https://dkharlanau.github.io/visual-workbench/",
+  "bugs": {
+    "url": "https://github.com/dkharlanau/visual-workbench/issues"
+  },
   "type": "module",
   "bin": {
     "visual-workbench": "./dist/cli.js",
@@ -16,6 +26,7 @@
   "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "check": "npm run typecheck && npm test && npm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

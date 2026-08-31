@@ -10,6 +10,7 @@ on:
       - "src/**"
       - "schemas/**"
       - "package.json"
+      - "package-lock.json"
       - "tsconfig.json"
       - ".github/workflows/product-pages.yml"
   workflow_dispatch:
@@ -30,19 +31,20 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
       - name: Install and build renderer
         run: |
-          npm install --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
           npm run build
       - name: Stage product site and generated proof gallery
         run: |
           mkdir -p _site/gallery
           cp docs/product.html _site/index.html
           cp docs/agent-manifest.json _site/agent-manifest.json
+          cp schemas/visual-workbench.schema.json _site/schema.json
 
           node dist/cli.js render examples/order-fulfillment-lanes.md \
             -o _site/gallery/order-fulfillment-handoffs.svg
@@ -75,14 +77,11 @@ jobs:
           test -s _site/gallery/product-plan.svg
           test -s _site/gallery/project-evidence-exceptions.svg
       - name: Configure Pages
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Upload static site
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - name: Deploy
-        if: github.event_name == 'workflow_dispatch'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

@@ -4,6 +4,8 @@
   "purpose": "Turn semantic Markdown metadata into deterministic, business-readable visual views without authoring coordinates or presentation details.",
   "human_url": "https://dkharlanau.github.io/visual-workbench/",
   "repository": "https://github.com/dkharlanau/visual-workbench",
+  "schema_url": "https://dkharlanau.github.io/visual-workbench/schema.json",
+  "distribution": "source checkout; npm registry publication is not part of the current v0.1 contract",
   "boundaries": ["not a freeform drawing canvas", "do not author x/y coordinates", "do not use manual colors as semantic source", "choose visual method from the reader question", "rendering must remain deterministic"],
   "capabilities": ["validate semantic visual models", "inspect models", "render SVG", "render standalone HTML", "render named views", "semantic lane/swimlane projection", "path contraction when views hide intermediate nodes", "method-specific layout policies"],
   "entrypoints": [
