@@ -1,0 +1,64 @@
+name: Enterprise Architecture Composer compatibility
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "schemas/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - ".github/workflows/enterprise-architecture-compatibility.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "schemas/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - ".github/workflows/enterprise-architecture-compatibility.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Visual Workbench
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Build and test Visual Workbench
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+
+      - name: Checkout tested Composer baseline
+        uses: actions/checkout@v7
+        with:
+          repository: dkharlanau/enterprise-architecture-composer
+          ref: 71bfd701ba5a0061db16adad82a992c11f8f210d
+          path: .integration/enterprise-architecture-composer
+
+      - name: Generate and render every Composer view
+        run: |
+          mkdir -p "$RUNNER_TEMP/eac-visual/views"
+          node .integration/enterprise-architecture-composer/bin/eac.mjs visual \
+            .integration/enterprise-architecture-composer/examples/scenarios/global-b2b-manufacturer.context.json \
+            --markdown \
+            --output "$RUNNER_TEMP/eac-visual/architecture.visual.md"
+          node dist/cli.js validate "$RUNNER_TEMP/eac-visual/architecture.visual.md"
+          node dist/cli.js render-views \
+            "$RUNNER_TEMP/eac-visual/architecture.visual.md" \
+            --output-dir "$RUNNER_TEMP/eac-visual/views"
+          test -s "$RUNNER_TEMP/eac-visual/views/architecture.visual.executive.svg"
+          test -s "$RUNNER_TEMP/eac-visual/views/architecture.visual.integration.svg"
+          test -s "$RUNNER_TEMP/eac-visual/views/architecture.visual.data.svg"
+          test -s "$RUNNER_TEMP/eac-visual/views/architecture.visual.exceptions.svg"

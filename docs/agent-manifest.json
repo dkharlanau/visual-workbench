@@ -7,7 +7,7 @@
   "schema_url": "https://dkharlanau.github.io/visual-workbench/schema.json",
   "distribution": "source checkout; npm registry publication is not part of the current v0.1 contract",
   "boundaries": ["not a freeform drawing canvas", "do not author x/y coordinates", "do not use manual colors as semantic source", "choose visual method from the reader question", "rendering must remain deterministic"],
-  "capabilities": ["validate semantic visual models", "inspect models", "render SVG", "render standalone HTML", "render named views", "semantic lane/swimlane projection", "path contraction when views hide intermediate nodes", "method-specific layout policies"],
+  "capabilities": ["validate semantic visual models", "inspect models", "render SVG", "render standalone HTML", "render named views", "semantic lane/swimlane projection", "semantic roadmap stage projection", "path contraction when views hide intermediate nodes", "method-specific layout policies"],
   "entrypoints": [
     {"type":"cli","command":"node dist/cli.js validate <model.md>"},
     {"type":"cli","command":"node dist/cli.js inspect <model.md>"},
@@ -15,8 +15,9 @@
     {"type":"cli","command":"node dist/cli.js render <model.md> --view <view> -o <output.svg>"},
     {"type":"cli","command":"node dist/cli.js render-views <model.md> --output-dir <dir>"}
   ],
-  "safe_agent_loop": ["read AGENTS.md and schema", "identify the reader question", "select method", "model semantic nodes/edges/groups", "add views only when they answer a distinct question", "validate", "render", "inspect output without encoding manual layout into the model"],
+  "safe_agent_loop": ["read AGENTS.md and schema", "identify the reader question", "select method", "model semantic nodes/edges and either groups or stages", "add views only when they answer a distinct question", "validate", "render", "inspect output without encoding manual layout into the model"],
   "related": [
+    {"product":"enterprise-architecture-composer","relationship":"tested coordinate-free architecture projection source"},
     {"product":"process-as-code","relationship":"semantic process source"},
     {"product":"enterprise-change-graph","relationship":"change-impact visual source"},
     {"product":"signal-to-insight","relationship":"visual explanation of structured knowledge"}

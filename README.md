@@ -196,6 +196,14 @@ tests/                 parser, method, view, lane and rendering tests
 
 See [methodology](docs/methodology.md), [language](docs/language.md), [architecture](docs/architecture.md), [visual methods](docs/visual-methods.md), [named views](docs/views.md), [groups](docs/groups.md) and [roadmap](docs/roadmap.md).
 
+## Related projects
+
+- [Enterprise Architecture Composer](https://github.com/dkharlanau/enterprise-architecture-composer) emits native coordinate-free Visual Workbench Markdown. The pinned [compatibility workflow](docs/enterprise-architecture-composer.md) generates a real architecture and renders all four named views; it is evidence for the tested revisions only.
+- [Project Evidence Graph](https://github.com/dkharlanau/project-evidence-graph) remains the traceability source for the read-only [Project Evidence adapter](docs/project-evidence-graph.md). Visual Workbench preserves evidence references but does not revalidate them.
+- [Mapping as Code](https://github.com/dkharlanau/mapping-as-code) can emit a semantic data-flow projection as described in the [mapping integration guide](docs/mapping-as-code.md). Mapping rules remain owned by the producer.
+- [Agent-Ready Web Profile](https://github.com/dkharlanau/agent-ready-web-profile) can describe the public gallery, manifest and schema as discoverable web surfaces. It does not validate visual semantics.
+- [AI CV Builder](https://github.com/dkharlanau/ai-cv-builder) may link to a published visual as evidence, but there is no direct model exchange between the projects.
+
 ## Status
 
 **v0.1 source distribution.** Semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes or roadmap stages → SVG/HTML is implemented and exercised by the public generated gallery. npm publication is not part of the current distribution contract. Next: timeline-specific date grammar, visual regression, cluster views and an interactive workbench.
@@ -203,3 +211,10 @@ See [methodology](docs/methodology.md), [language](docs/language.md), [architect
 ## License
 
 MIT. See [`LICENSE`](LICENSE).
+
+## About the author
+
+Created and maintained by **Dzmitryi Kharlanau**, an SAP consultant and system analyst working across enterprise architecture, data, integration, operations, and practical AI.
+
+- [Website and knowledge base](https://dkharlanau.github.io/)
+- [LinkedIn](https://www.linkedin.com/in/dkharlanau/)
