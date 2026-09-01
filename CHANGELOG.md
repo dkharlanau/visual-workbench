@@ -2,6 +2,17 @@
 
 All notable public release changes are recorded here. Versions follow Semantic Versioning.
 
+## [0.1.2] - 2026-09-01
+
+### Documentation
+
+- Added a copy-paste 30-second proof that validates and renders the committed synthetic handoff example.
+- Linked the exact generated gallery artifact and release-pinned verification walkthrough while preserving the human-review boundary.
+
+### Compatibility
+
+- The v0.1 metadata language, CLI behavior, rendering fixtures, adapters, and golden SVG digest are unchanged from v0.1.1.
+
 ## [0.1.1] - 2026-09-01
 
 ### Changed
@@ -29,5 +40,6 @@ All notable public release changes are recorded here. Versions follow Semantic V
 - Rendering is deterministic for the released fixtures and supported runtime, but visual pixel identity across arbitrary future layout-engine versions is not promised.
 - Visual Workbench renders producer semantics; it does not revalidate architecture or evidence claims owned by another product.
 
+[0.1.2]: https://github.com/dkharlanau/visual-workbench/releases/tag/v0.1.2
 [0.1.1]: https://github.com/dkharlanau/visual-workbench/releases/tag/v0.1.1
 [0.1.0]: https://github.com/dkharlanau/visual-workbench/releases/tag/v0.1.0

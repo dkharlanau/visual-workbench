@@ -231,7 +231,7 @@ See [methodology](docs/methodology.md), [language](docs/language.md), [architect
 
 **v0.1 source distribution.** Semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes or roadmap stages → SVG/HTML is implemented and exercised by the public generated gallery. npm publication is not part of the current distribution contract. Next: timeline-specific date grammar, visual regression, cluster views and an interactive workbench.
 
-Release resources: [v0.1.1 notes](release/v0.1.1.md) · [release and compatibility policy](docs/RELEASES.md) · [golden quickstart](docs/GOLDEN_QUICKSTART.md) · [15-minute usability test](docs/USABILITY_TEST_15_MIN.md) · [contributing and feedback](CONTRIBUTING.md) · [changelog](CHANGELOG.md)
+Release resources: [v0.1.2 notes](release/v0.1.2.md) · [release and compatibility policy](docs/RELEASES.md) · [golden quickstart](docs/GOLDEN_QUICKSTART.md) · [15-minute usability test](docs/USABILITY_TEST_15_MIN.md) · [contributing and feedback](CONTRIBUTING.md) · [changelog](CHANGELOG.md)
 
 ## License
 
