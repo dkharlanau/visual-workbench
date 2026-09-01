@@ -8,6 +8,23 @@ Visual Workbench is a metadata-driven visual modeling engine for processes, plan
 
 The goal is not to be another drawing tool. It is a small visual language, method library and rendering engine that lets humans and agents describe **what things are and how they relate**, then produces consistent, business-readable views.
 
+## 30-second proof
+
+From a repository checkout, install the locked dependencies and render an executive view from the committed synthetic handoff example:
+
+```bash
+npm ci --ignore-scripts --no-audit --no-fund \
+  && npm run build \
+  && node dist/cli.js validate examples/order-fulfillment-lanes.md \
+  && node dist/cli.js render examples/order-fulfillment-lanes.md \
+    --view executive \
+    --output /tmp/visual-workbench-proof.svg
+```
+
+Expected artifact: a non-empty `/tmp/visual-workbench-proof.svg` showing the executive order-fulfilment path generated without source coordinates. Compare it with the [public generated example](https://dkharlanau.github.io/visual-workbench/gallery/order-fulfillment-executive.svg), or follow the [release-pinned walkthrough](https://github.com/dkharlanau/visual-workbench/blob/main/docs/GOLDEN_QUICKSTART.md) to verify the release digest.
+
+This proof uses synthetic example data. It demonstrates validation and deterministic rendering for the supported source distribution; it does not certify production data, guarantee that a view answers every audience's question, or replace human review.
+
 ## What makes it different
 
 Most diagram-as-code tools still make authors think like diagram designers: boxes, arrows, shapes and layout hints. Visual Workbench moves the authoring layer up one level.
