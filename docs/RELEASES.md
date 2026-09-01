@@ -19,4 +19,4 @@ GitHub Releases contain a byte-reproducible `npm pack` tarball, a deterministic 
 - The pinned Composer compatibility workflow proves the exact checked-out revisions only.
 - Interactive editing, date-aware timeline grammar, universal accessibility certification, and production evidence validation are non-goals for v0.1.
 
-See the [golden quickstart](GOLDEN_QUICKSTART.md) and [v0.1.0 release notes](../release/v0.1.0.md).
+See the [golden quickstart](GOLDEN_QUICKSTART.md) and [v0.1.1 release notes](../release/v0.1.1.md).

@@ -203,6 +203,10 @@ See [methodology](docs/methodology.md), [language](docs/language.md), [architect
 - [Enterprise Architecture Composer](https://github.com/dkharlanau/enterprise-architecture-composer) emits native coordinate-free Visual Workbench Markdown. The pinned [compatibility workflow](docs/enterprise-architecture-composer.md) generates a real architecture and renders all four named views; it is evidence for the tested revisions only.
 - [Project Evidence Graph](https://github.com/dkharlanau/project-evidence-graph) remains the traceability source for the read-only [Project Evidence adapter](docs/project-evidence-graph.md). Visual Workbench preserves evidence references but does not revalidate them.
 - [Mapping as Code](https://github.com/dkharlanau/mapping-as-code) can emit a semantic data-flow projection as described in the [mapping integration guide](docs/mapping-as-code.md). Mapping rules remain owned by the producer.
+- [Process as Code](https://github.com/dkharlanau/process-as-code) owns process steps, roles, gates, and transitions. A Visual Workbench view may render a bounded coordinate-free projection, but it does not become the process contract or imply a native adapter where none is tested.
+- [Interface as Code](https://github.com/dkharlanau/interface-as-code) owns operational integration contracts, including retry, recovery, monitoring, and ownership semantics. Visual Workbench may present selected systems, data, and controls while keeping the upstream contract authoritative.
+- [Reconciliation as Code](https://github.com/dkharlanau/reconciliation-as-code) owns reconciliation controls and retained run evidence. A visual projection can expose selected checkpoints and outcomes, but it does not execute controls or verify evidence.
+- [Cutover Graph](https://github.com/dkharlanau/cutover-graph) owns cutover tasks, dependencies, timing, readiness, and contingency state. Any Visual Workbench projection should remain bounded and preserve stable source references rather than copying cutover semantics.
 - [Agent-Ready Web Profile](https://github.com/dkharlanau/agent-ready-web-profile) can describe the public gallery, manifest and schema as discoverable web surfaces. It does not validate visual semantics.
 - [AI CV Builder](https://github.com/dkharlanau/ai-cv-builder) may link to a published visual as evidence, but there is no direct model exchange between the projects.
 
@@ -210,7 +214,7 @@ See [methodology](docs/methodology.md), [language](docs/language.md), [architect
 
 **v0.1 source distribution.** Semantic Markdown → validated graph → named semantic views → method-specific ELK layout → semantic swimlanes or roadmap stages → SVG/HTML is implemented and exercised by the public generated gallery. npm publication is not part of the current distribution contract. Next: timeline-specific date grammar, visual regression, cluster views and an interactive workbench.
 
-Release resources: [v0.1.0 notes](release/v0.1.0.md) · [release and compatibility policy](docs/RELEASES.md) · [golden quickstart](docs/GOLDEN_QUICKSTART.md) · [15-minute usability test](docs/USABILITY_TEST_15_MIN.md) · [contributing and feedback](CONTRIBUTING.md) · [changelog](CHANGELOG.md)
+Release resources: [v0.1.1 notes](release/v0.1.1.md) · [release and compatibility policy](docs/RELEASES.md) · [golden quickstart](docs/GOLDEN_QUICKSTART.md) · [15-minute usability test](docs/USABILITY_TEST_15_MIN.md) · [contributing and feedback](CONTRIBUTING.md) · [changelog](CHANGELOG.md)
 
 ## License
 

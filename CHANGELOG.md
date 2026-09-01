@@ -2,6 +2,17 @@
 
 All notable public release changes are recorded here. Versions follow Semantic Versioning.
 
+## [0.1.1] - 2026-09-01
+
+### Changed
+
+- Documented the bounded Visual Workbench relationship to Process as Code, Interface as Code, Reconciliation as Code, and Cutover Graph.
+- Made semantic ownership explicit: producer contracts and evidence remain authoritative; a rendered projection does not claim an untested native adapter or transfer validation responsibility.
+
+### Compatibility
+
+- The v0.1 metadata language, CLI behavior, rendering fixtures, and golden SVG digest are unchanged from v0.1.0.
+
 ## [0.1.0] - 2026-09-01
 
 ### Added
@@ -18,4 +29,5 @@ All notable public release changes are recorded here. Versions follow Semantic V
 - Rendering is deterministic for the released fixtures and supported runtime, but visual pixel identity across arbitrary future layout-engine versions is not promised.
 - Visual Workbench renders producer semantics; it does not revalidate architecture or evidence claims owned by another product.
 
+[0.1.1]: https://github.com/dkharlanau/visual-workbench/releases/tag/v0.1.1
 [0.1.0]: https://github.com/dkharlanau/visual-workbench/releases/tag/v0.1.0
