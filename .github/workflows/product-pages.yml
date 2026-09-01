@@ -6,6 +6,7 @@ on:
     paths:
       - "docs/product.html"
       - "docs/agent-manifest.json"
+      - "assets/social-preview.png"
       - "examples/**"
       - "src/**"
       - "schemas/**"
@@ -45,6 +46,8 @@ jobs:
           cp docs/product.html _site/index.html
           cp docs/agent-manifest.json _site/agent-manifest.json
           cp schemas/visual-workbench.schema.json _site/schema.json
+          mkdir -p _site/assets
+          cp assets/social-preview.png _site/assets/social-preview.png
 
           node dist/cli.js render examples/order-fulfillment-lanes.md \
             -o _site/gallery/order-fulfillment-handoffs.svg
