@@ -85,6 +85,8 @@ jobs:
           test -s _site/gallery/project-evidence-exceptions.svg
       - name: Configure Pages
         uses: actions/configure-pages@v6
+      - name: Add consent-aware portfolio analytics
+        run: node scripts/inject-portfolio-analytics.mjs _site
       - name: Upload static site
         uses: actions/upload-pages-artifact@v5
         with:
