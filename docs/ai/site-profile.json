@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dkharlanau/agent-ready-web-profile/v0.1.0/schema/site-profile.schema.json",
+  "profileVersion": "0.1",
+  "id": "visual-workbench",
+  "name": "Visual Workbench",
+  "canonicalUrl": "https://dkharlanau.github.io/visual-workbench/",
+  "description": "Turn semantic Markdown metadata into deterministic, business-readable visual views without authoring coordinates or presentation details.",
+  "languages": [
+    "en"
+  ],
+  "trust": {
+    "provenance": "https://github.com/dkharlanau/visual-workbench/blob/main/README.md",
+    "license": "https://github.com/dkharlanau/visual-workbench/blob/main/LICENSE"
+  },
+  "data": {
+    "distributions": [
+      {
+        "name": "Project agent manifest",
+        "url": "https://dkharlanau.github.io/visual-workbench/agent-manifest.json",
+        "mediaType": "application/json",
+        "role": "other",
+        "description": "Source-backed project scope and local CLI entrypoints; this is not a hosted execution endpoint."
+      }
+    ]
+  }
+}
