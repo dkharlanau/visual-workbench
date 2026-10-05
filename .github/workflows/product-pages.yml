@@ -56,6 +56,8 @@ jobs:
             -o _site/gallery/order-fulfillment-handoffs.svg
           node dist/cli.js render examples/order-fulfillment-lanes.md \
             --view executive -o _site/gallery/order-fulfillment-executive.svg
+          node dist/cli.js render examples/order-fulfillment-lanes.md \
+            --view controls -o _site/gallery/order-fulfillment-controls.svg
           node dist/cli.js render examples/supply-chain.md \
             --view executive -o _site/gallery/supply-chain-executive.svg
           node dist/cli.js render examples/product-plan.md \
@@ -72,6 +74,7 @@ jobs:
             "outputs": [
               "order-fulfillment-handoffs.svg",
               "order-fulfillment-executive.svg",
+              "order-fulfillment-controls.svg",
               "supply-chain-executive.svg",
               "product-plan.svg",
               "product-roadmap.svg",
@@ -82,6 +85,7 @@ jobs:
           touch _site/.nojekyll
           test -s _site/gallery/order-fulfillment-handoffs.svg
           test -s _site/gallery/order-fulfillment-executive.svg
+          test -s _site/gallery/order-fulfillment-controls.svg
           test -s _site/gallery/supply-chain-executive.svg
           test -s _site/gallery/product-plan.svg
           test -s _site/gallery/product-roadmap.svg
