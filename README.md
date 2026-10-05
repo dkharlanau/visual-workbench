@@ -126,7 +126,8 @@ Markdown + semantic metadata
 - **ELK.js** establishes the global graph structure and flow.
 - **Visual Workbench lane composition** preserves ELK's global sequence while placing nodes into semantic ownership lanes and rebuilding orthogonal routes.
 - **Custom SVG rendering** keeps the business-facing visual grammar under our control.
-- A future **Cytoscape.js adapter** can provide interactive exploration without becoming the source of truth.
+- **Standalone HTML output** wraps the generated SVG in a lightweight review viewer with fit and actual-size modes, without adding a separate rendering source of truth.
+- A future **Cytoscape.js adapter** can provide deeper interactive exploration without becoming the source of truth.
 
 ## Visual methods
 
