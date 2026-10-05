@@ -42,5 +42,9 @@ describe('renderMarkdown', () => {
     const html = await renderMarkdown(source, 'html');
     expect(html).toContain('<!doctype html>');
     expect(html).toContain('<svg');
+    expect(html).toContain('Visual Workbench viewer');
+    expect(html).toContain('data-viewer-action="fit"');
+    expect(html).toContain('data-viewer-action="actual"');
+    expect(html).toContain('class="visual fit"');
   });
 });
