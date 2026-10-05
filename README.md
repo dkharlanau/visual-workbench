@@ -4,7 +4,7 @@
 
 Visual Workbench is a metadata-driven visual modeling engine for processes, plans, data flows, checkpoints, handoffs, dependencies and relationships. The source of truth is Markdown + structured metadata; layout and presentation are generated automatically.
 
-[Open the live generated gallery](https://dkharlanau.github.io/visual-workbench/).
+[Open the live generated gallery and reviewer-lens demo](https://dkharlanau.github.io/visual-workbench/#reviewer-lens).
 
 The goal is not to be another drawing tool. It is a small visual language, method library and rendering engine that lets humans and agents describe **what things are and how they relate**, then produces consistent, business-readable views.
 
@@ -139,6 +139,8 @@ See [visual method selection](docs/visual-methods.md).
 ## One model, multiple views
 
 Named views answer different questions from the same semantic source. Built-in focus presets are `all`, `executive`, `flow`, `data`, `controls` and `exceptions`. A view can override the visual method and apply semantic filters.
+
+The public product page includes a generated reviewer-lens proof: executive, integration/handoff and controls views are rendered from the same committed order-fulfillment source during the Pages build. The assurance lens demonstrates the implemented Project Evidence Graph adapter rather than claiming a shared source where there is none.
 
 When a view hides an intermediate node, Visual Workbench contracts the hidden directed path so the visible business flow remains connected instead of producing disconnected boxes.
 
