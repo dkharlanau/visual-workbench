@@ -60,9 +60,19 @@ An executive view may intentionally hide the ASN object. Visual Workbench detect
 Supplier ── via Advance shipment notice ──▶ Inbound checkpoint
 ```
 
-The original model is not changed. The derived edge exists only inside that projected view and carries a note describing the collapsed path.
+The original model is not changed. The derived edge exists only inside that projected view.
 
-Path contraction is bounded to avoid uncontrolled graph traversal and is deterministic for the same source model.
+Collapsed paths are aggregated conservatively:
+
+- warning or danger on a hidden node or source edge survives on the derived relationship;
+- success is never inferred for a collapsed relationship;
+- parallel hidden paths with the same visible endpoints and relationship type are aggregated with maximum retained severity;
+- a direct visible edge does not suppress a meaningful hidden alternative;
+- bounded source-path references and hidden node IDs are attached as projection provenance.
+
+Path exploration is bounded to avoid uncontrolled graph traversal. The default limits are six hidden nodes and 256 exploration states per visible source. Encountered depth, cycle, or exploration-budget limits are reported instead of being treated as evidence that no relationship exists.
+
+Every named projection also carries a document-level projection report with visible/source counts, hidden risk IDs and completeness limits. SVG/HTML output shows a compact scope disclosure, while `vwb inspect --view ...` exposes the structured report and collapsed-edge provenance for machine review.
 
 ## CLI
 
@@ -73,7 +83,7 @@ vwb views examples/supply-chain.md
 # Render one view
 vwb render examples/supply-chain.md --view executive -o executive.svg
 
-# Inspect one projected semantic graph
+# Inspect one projected semantic graph, including projection scope/provenance
 vwb inspect examples/supply-chain.md --view controls
 
 # Render every named view
