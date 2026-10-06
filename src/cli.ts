@@ -106,7 +106,24 @@ program.command('inspect')
     const parsed = parseVisualMarkdown(markdown);
     const visual = projectVisualView(parsed.visual, options.view);
     const summary = summarizeGraph(buildSemanticGraph(visual));
-    console.log(JSON.stringify({ title: visual.title, kind: visual.kind, view: options.view ?? null, ...summary }, null, 2));
+    const collapsedEdges = visual.edges
+      .filter((edge) => edge.projection?.kind === 'collapsed-path')
+      .map((edge) => ({
+        from: edge.from,
+        to: edge.to,
+        type: edge.type,
+        status: edge.status,
+        label: edge.label ?? null,
+        projection: edge.projection,
+      }));
+    console.log(JSON.stringify({
+      title: visual.title,
+      kind: visual.kind,
+      view: options.view ?? null,
+      ...summary,
+      projection: visual.projection ?? null,
+      collapsedEdges,
+    }, null, 2));
   });
 
 program.command('views')
