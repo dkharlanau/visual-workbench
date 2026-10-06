@@ -23,7 +23,8 @@
         "stages": { "type": "array", "items": { "$ref": "#/$defs/stage" }, "default": [] },
         "nodes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/node" } },
         "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" }, "default": [] },
-        "views": { "type": "array", "items": { "$ref": "#/$defs/view" }, "default": [] }
+        "views": { "type": "array", "items": { "$ref": "#/$defs/view" }, "default": [] },
+        "projection": { "$ref": "#/$defs/projectionReport" }
       }
     },
     "group": {
@@ -77,7 +78,44 @@
         "label": { "type": "string", "minLength": 1 },
         "type": { "enum": ["flow", "data", "dependency", "relation", "control", "exception"], "default": "flow" },
         "status": { "enum": ["neutral", "success", "warning", "danger", "muted"], "default": "neutral" },
-        "note": { "type": "string", "minLength": 1 }
+        "note": { "type": "string", "minLength": 1 },
+        "projection": { "$ref": "#/$defs/edgeProjection" }
+      }
+    },
+    "edgeProjection": {
+      "type": "object",
+      "required": ["kind", "pathCount", "aggregation"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "collapsed-path" },
+        "pathCount": { "type": "integer", "minimum": 1 },
+        "hiddenNodeIds": { "type": "array", "items": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" }, "default": [] },
+        "hiddenRiskNodeIds": { "type": "array", "items": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" }, "default": [] },
+        "sourcePathRefs": { "type": "array", "maxItems": 8, "items": { "type": "string", "minLength": 1 }, "default": [] },
+        "sourcePathRefsTruncated": { "type": "boolean", "default": false },
+        "aggregation": { "const": "conservative-max-severity" },
+        "limited": { "type": "boolean", "default": false },
+        "limitReasons": { "type": "array", "items": { "enum": ["depth", "cycle", "budget"] }, "default": [] }
+      }
+    },
+    "projectionReport": {
+      "type": "object",
+      "required": ["viewId", "sourceNodeCount", "visibleNodeCount", "sourceEdgeCount", "projectedEdgeCount", "collapsedEdgeCount", "maxHiddenDepth", "maxExplorationStatesPerSource", "maxSourcePathRefsPerBridge"],
+      "additionalProperties": false,
+      "properties": {
+        "viewId": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" },
+        "sourceNodeCount": { "type": "integer", "minimum": 0 },
+        "visibleNodeCount": { "type": "integer", "minimum": 0 },
+        "sourceEdgeCount": { "type": "integer", "minimum": 0 },
+        "projectedEdgeCount": { "type": "integer", "minimum": 0 },
+        "collapsedEdgeCount": { "type": "integer", "minimum": 0 },
+        "hiddenNodeIds": { "type": "array", "items": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" }, "default": [] },
+        "hiddenRiskNodeIds": { "type": "array", "items": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" }, "default": [] },
+        "limited": { "type": "boolean", "default": false },
+        "limitReasons": { "type": "array", "items": { "enum": ["depth", "cycle", "budget"] }, "default": [] },
+        "maxHiddenDepth": { "type": "integer", "minimum": 1 },
+        "maxExplorationStatesPerSource": { "type": "integer", "minimum": 1 },
+        "maxSourcePathRefsPerBridge": { "type": "integer", "minimum": 1 }
       }
     },
     "view": {
