@@ -42,6 +42,7 @@ export const EdgeTypeSchema = z.enum([
 ]);
 
 export const StatusSchema = z.enum(['neutral', 'success', 'warning', 'danger', 'muted']);
+export const ProjectionLimitReasonSchema = z.enum(['depth', 'cycle', 'budget']);
 export const ViewFocusSchema = z.enum(['all', 'executive', 'flow', 'data', 'controls', 'exceptions']);
 export const GroupKindSchema = z.literal('lane');
 
@@ -74,6 +75,18 @@ export const VisualNodeSchema = z.object({
   tags: z.array(z.string().trim().min(1)).default([]),
 });
 
+export const VisualEdgeProjectionSchema = z.object({
+  kind: z.literal('collapsed-path'),
+  pathCount: z.number().int().positive(),
+  hiddenNodeIds: z.array(IdSchema).default([]),
+  hiddenRiskNodeIds: z.array(IdSchema).default([]),
+  sourcePathRefs: z.array(z.string().trim().min(1)).max(8).default([]),
+  sourcePathRefsTruncated: z.boolean().default(false),
+  aggregation: z.literal('conservative-max-severity'),
+  limited: z.boolean().default(false),
+  limitReasons: z.array(ProjectionLimitReasonSchema).default([]),
+});
+
 export const VisualEdgeSchema = z.object({
   from: IdSchema,
   to: IdSchema,
@@ -81,6 +94,7 @@ export const VisualEdgeSchema = z.object({
   type: EdgeTypeSchema.default('flow'),
   status: StatusSchema.default('neutral'),
   note: z.string().trim().min(1).optional(),
+  projection: VisualEdgeProjectionSchema.optional(),
 });
 
 export const VisualViewSchema = z.object({
@@ -104,6 +118,22 @@ export const VisualViewSchema = z.object({
   excludeEdgeTypes: z.array(EdgeTypeSchema).min(1).optional(),
 });
 
+export const VisualProjectionReportSchema = z.object({
+  viewId: IdSchema,
+  sourceNodeCount: z.number().int().nonnegative(),
+  visibleNodeCount: z.number().int().nonnegative(),
+  sourceEdgeCount: z.number().int().nonnegative(),
+  projectedEdgeCount: z.number().int().nonnegative(),
+  collapsedEdgeCount: z.number().int().nonnegative(),
+  hiddenNodeIds: z.array(IdSchema).default([]),
+  hiddenRiskNodeIds: z.array(IdSchema).default([]),
+  limited: z.boolean().default(false),
+  limitReasons: z.array(ProjectionLimitReasonSchema).default([]),
+  maxHiddenDepth: z.number().int().positive(),
+  maxExplorationStatesPerSource: z.number().int().positive(),
+  maxSourcePathRefsPerBridge: z.number().int().positive(),
+});
+
 export const VisualDocumentSchema = z.object({
   version: z.number().int().positive().default(1),
   title: z.string().trim().min(1),
@@ -117,6 +147,7 @@ export const VisualDocumentSchema = z.object({
   nodes: z.array(VisualNodeSchema).min(1),
   edges: z.array(VisualEdgeSchema).default([]),
   views: z.array(VisualViewSchema).default([]),
+  projection: VisualProjectionReportSchema.optional(),
 });
 
 export const MarkdownEnvelopeSchema = z.object({ visual: VisualDocumentSchema });
@@ -125,10 +156,13 @@ export type VisualKind = z.infer<typeof VisualKindSchema>;
 export type VisualGroup = z.infer<typeof VisualGroupSchema>;
 export type VisualStage = z.infer<typeof VisualStageSchema>;
 export type VisualNode = z.infer<typeof VisualNodeSchema>;
+export type VisualEdgeProjection = z.infer<typeof VisualEdgeProjectionSchema>;
+export type VisualProjectionReport = z.infer<typeof VisualProjectionReportSchema>;
 export type VisualEdge = z.infer<typeof VisualEdgeSchema>;
 export type VisualView = z.infer<typeof VisualViewSchema>;
 export type VisualDocument = z.infer<typeof VisualDocumentSchema>;
 export type NodeType = z.infer<typeof NodeTypeSchema>;
 export type EdgeType = z.infer<typeof EdgeTypeSchema>;
 export type Status = z.infer<typeof StatusSchema>;
+export type ProjectionLimitReason = z.infer<typeof ProjectionLimitReasonSchema>;
 export type ViewFocus = z.infer<typeof ViewFocusSchema>;
