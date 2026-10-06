@@ -44,3 +44,44 @@ describe('renderMarkdown', () => {
     expect(html).toContain('<svg');
   });
 });
+
+
+const projectedSource = `---
+visual:
+  title: Projection disclosure
+  kind: process
+  nodes:
+    - id: source
+      label: Source
+      type: system
+    - id: hidden-risk
+      label: Hidden risk
+      type: step
+      status: danger
+    - id: target
+      label: Target
+      type: outcome
+  edges:
+    - from: source
+      to: hidden-risk
+    - from: hidden-risk
+      to: target
+  views:
+    - id: executive
+      focus: all
+      excludeNodeTypes: [step]
+---
+`;
+
+describe('projection disclosure', () => {
+  it('renders projected scope and hidden-risk disclosure into SVG text and description', async () => {
+    const svg = await renderMarkdown(projectedSource, 'svg', 'executive');
+    expect(svg).toContain('Scope · 2/3 nodes shown · 1 hidden risk');
+    expect(svg).toContain('Collapsed view aggregation');
+  });
+
+  it('keeps the same disclosure inside standalone HTML because the generated SVG is embedded', async () => {
+    const html = await renderMarkdown(projectedSource, 'html', 'executive');
+    expect(html).toContain('Scope · 2/3 nodes shown · 1 hidden risk');
+  });
+});
