@@ -77,7 +77,7 @@ describe('projection disclosure', () => {
   it('renders projected scope and hidden-risk disclosure into SVG text and description', async () => {
     const svg = await renderMarkdown(projectedSource, 'svg', 'executive');
     expect(svg).toContain('Scope · 2/3 nodes shown · 1 hidden risk');
-    expect(svg).toContain('Collapsed view aggregation');
+    expect(svg).toContain('stroke="#D92D20"');
   });
 
   it('keeps the same disclosure inside standalone HTML because the generated SVG is embedded', async () => {
